@@ -1,0 +1,313 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Profile Card -->
+            <div class="card profile-card shadow">
+                <div class="card-header text-white text-center">
+                    <div class="profile-image-container">
+                        <form id="imageUploadForm" enctype="multipart/form-data">
+                            <label for="profileImageInput" style="cursor:pointer;">
+                                <img src="<%= user.profileImage || '/images/default-profile.png' %>" 
+                                    alt="Profile Picture" 
+                                    class="profile-image rounded-circle"
+                                    id="profileImage">
+                                <div class="profile-overlay">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </label>
+                            <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;">
+                        </form>
+                    </div>
+                    <h4 class="mt-3 mb-0"><%= user.name %></h4>
+                    <p class="mb-0 opacity-75">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Member since <%= new Date(user.createdAt).toLocaleDateString() %>
+                    </p>
+                </div>
+                <div class="card-body">
+                    <!-- Profile Stats -->
+                    <div class="profile-stats">
+                        <div class="row">
+                            <div class="col-4 stat-item">
+                                <span class="stat-number"><%= stats.totalTrades || 0 %></span>
+                                <span class="stat-label">Total Trades</span>
+                            </div>
+                            <div class="col-4 stat-item">
+                                <span class="stat-number"><%= stats.watchlistCount || 0 %></span>
+                                <span class="stat-label">Watchlist</span>
+                            </div>
+                            <div class="col-4 stat-item">
+                                <span class="stat-number"><%= Math.ceil((Date.now() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24)) %></span>
+                                <span class="stat-label">Days Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Summary -->
+            <div class="trading-summary mt-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-chart-line me-2 text-primary"></i>
+                    Trading Summary
+                </h5>
+                <div class="row">
+                    <div class="col-6 summary-metric">
+                        <div class="metric-value <%= (stats.totalProfit || 0) >= 0 ? 'metric-positive' : 'metric-negative' %>">
+                            $<%= Math.abs(stats.totalProfit || 0).toLocaleString() %>
+                        </div>
+                        <div class="metric-label">Total P&L</div>
+                    </div>
+                    <div class="col-6 summary-metric">
+                        <div class="metric-value metric-neutral">
+                            <%= stats.winRate || 0 %>%
+                        </div>
+                        <div class="metric-label">Win Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Profile Information Form -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form class="profile-form" id="profileForm" action="/profile/update" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           name="name" 
+                                           value="<%= user.name %>" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           name="email" 
+                                           value="<%= user.email %>" 
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           name="phone" 
+                                           value="<%= user.phone || '' %>" 
+                                           placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Experience Level</label>
+                                    <select class="form-control" name="experienceLevel">
+                                        <option value="beginner" <%= (user.experienceLevel === 'beginner') ? 'selected' : '' %>>Beginner</option>
+                                        <option value="intermediate" <%= (user.experienceLevel === 'intermediate') ? 'selected' : '' %>>Intermediate</option>
+                                        <option value="advanced" <%= (user.experienceLevel === 'advanced') ? 'selected' : '' %>>Advanced</option>
+                                        <option value="expert" <%= (user.experienceLevel === 'expert') ? 'selected' : '' %>>Expert</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-control" 
+                                      name="bio" 
+                                      rows="3" 
+                                      placeholder="Tell us about yourself..."><%= user.bio || '' %></textarea>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="submit" class="btn btn-update">
+                                <i class="fas fa-save me-2"></i>
+                                Update Profile
+                            </button>
+                            <button type="button" class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash me-2"></i>
+                                Delete Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card shadow mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="recent-activity">
+                        <% if (recentTrades && recentTrades.length > 0) { %>
+                            <% recentTrades.forEach(trade => { %>
+                                <div class="activity-item">
+                                    <div class="activity-icon activity-<%= trade.type %>">
+                                        <i class="fas fa-<%= trade.type === 'buy' ? 'arrow-up' : 'arrow-down' %>"></i>
+                                    </div>
+                                    <div class="activity-content flex-grow-1">
+                                        <h6><%= trade.type.toUpperCase() %> <%= trade.symbol %></h6>
+                                        <small class="text-muted">
+                                            <%= trade.quantity %> shares at $<%= trade.price %> • 
+                                            <%= new Date(trade.date).toLocaleDateString() %>
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-<%= trade.profit >= 0 ? 'success' : 'danger' %>">
+                                            <%= trade.profit >= 0 ? '+' : '' %>$<%= trade.profit.toFixed(2) %>
+                                        </span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="text-center py-4 text-muted">
+                                <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i>
+                                <p>No trading activity yet. Start by exploring stocks!</p>
+                                <a href="/stocks" class="btn btn-primary">Browse Stocks</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Delete Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Are you sure you want to delete your account? This action cannot be undone.</p>
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> All your trading data, watchlists, and account information will be permanently deleted.
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type "DELETE" to confirm:</label>
+                    <input type="text" class="form-control" id="deleteConfirmation" placeholder="Type DELETE">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/profile/delete" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" id="confirmDelete" disabled>
+                        <i class="fas fa-trash me-2"></i>
+                        Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Profile page JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete confirmation
+    const deleteInput = document.getElementById('deleteConfirmation');
+    const deleteBtn = document.getElementById('confirmDelete');
+    
+    deleteInput.addEventListener('input', function() {
+        deleteBtn.disabled = this.value !== 'DELETE';
+    });
+
+    // Profile form submission
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('/profile/update', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Profile updated successfully!', 'success');
+            } else {
+                showAlert('Error updating profile: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('Error updating profile. Please try again.', 'danger');
+        });
+    });
+});
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// ...existing code...
+// Profile page JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+
+    // Profile image upload
+    const imageInput = document.getElementById('profileImageInput');
+    const imageForm = document.getElementById('imageUploadForm');
+    const profileImg = document.getElementById('profileImage');
+
+    imageInput.addEventListener('change', function() {
+        const formData = new FormData(imageForm);
+        fetch('/profile/upload-image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                profileImg.src = data.imagePath + '?t=' + Date.now();
+                showAlert('Profile image updated!', 'success');
+            } else {
+                showAlert('Image upload failed.', 'danger');
+            }
+        })
+        .catch(() => showAlert('Image upload failed.', 'danger'));
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

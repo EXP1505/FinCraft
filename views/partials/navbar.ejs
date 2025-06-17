@@ -1,0 +1,31 @@
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/dashboard" class="logo">
+            <img src="/images/navbar.png" alt="StockSage Logo" style="height:48px;vertical-align:middle;">
+        </a>
+        
+        <div class="nav-links">
+            <a href="/dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/history">
+                <i class="fas fa-history"></i> Trade History
+            </a>
+            <a href="/payment">
+                <i class="fas fa-credit-card"></i> Payment
+            </a>
+            <a href="/brokers">
+                <i class="fas fa-user-tie"></i> Brokers
+            </a>
+            <a href="/profile" class="profile-img" title="Profile">
+                <%= user && user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+            </a>
+            <a href="/auth/logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <!-- <a href="/profile" class="profile-img" title="Profile">
+                <%= user && user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+            </a> -->
+        </div>
+    </div>
+</nav>

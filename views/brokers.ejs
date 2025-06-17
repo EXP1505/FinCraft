@@ -1,0 +1,286 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-user-tie me-2"></i>
+                    Financial Advisors & Brokers
+                </h2>
+                <div class="text-muted">
+                    <i class="fas fa-users me-1"></i>
+                    <%= brokers.length %> Available Advisors
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Brokers Grid -->
+    <div class="row">
+        <% brokers.forEach(broker => { %>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card broker-card h-100 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <img src="<%= broker.profileImage %>" alt="<%= broker.name %>" 
+                             class="rounded-circle me-3" width="50" height="50">
+                        <div>
+                            <h5 class="mb-0"><%= broker.name %></h5>
+                            <small class="text-white-50">
+                                <i class="fas fa-star me-1"></i>
+                                <%= broker.rating %>/5.0 Rating
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-success mb-2">
+                            <i class="fas fa-briefcase me-1"></i>
+                            <%= broker.experience %> Years Experience
+                        </span>
+                        <span class="badge bg-info">
+                            <i class="fas fa-certificate me-1"></i>
+                            <%= broker.specialization %>
+                        </span>
+                    </div>
+                    
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-quote-left me-1"></i>
+                        <%= broker.bio %>
+                    </p>
+                    
+                    <div class="broker-stats mb-3">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <div class="stat-number text-success">
+                                        <%= broker.clientsHelped %>
+                                    </div>
+                                    <div class="stat-label text-muted small">Clients</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <div class="stat-number text-primary">
+                                        <%= broker.successRate %>%
+                                    </div>
+                                    <div class="stat-label text-muted small">Success</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <div class="stat-number text-warning">
+                                        $<%= broker.avgReturn %>
+                                    </div>
+                                    <div class="stat-label text-muted small">Avg Return</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <small class="text-muted"><%= broker.email %></small>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <small class="text-muted"><%= broker.phone %></small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <small class="text-muted"><%= broker.location %></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <button class="btn btn-outline-primary btn-sm" 
+                                onclick="viewProfile('<%= broker._id %>')">
+                            <i class="fas fa-user me-1"></i>
+                            View Profile
+                        </button>
+                        <button class="btn btn-primary btn-sm" 
+                                onclick="contactBroker('<%= broker._id %>', '<%= broker.name %>')">
+                            <i class="fas fa-comments me-1"></i>
+                            Contact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+
+    <!-- No Brokers Message -->
+    <% if (brokers.length === 0) { %>
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No Financial Advisors Available</h4>
+                <p class="text-muted">Check back later for available advisors and brokers.</p>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">
+                    <i class="fas fa-comments me-2"></i>
+                    Contact Advisor
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label for="advisorName" class="form-label">Financial Advisor</label>
+                        <input type="text" class="form-control" id="advisorName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <select class="form-select" id="subject" required>
+                            <option value="">Select a topic...</option>
+                            <option value="investment-advice">Investment Advice</option>
+                            <option value="portfolio-review">Portfolio Review</option>
+                            <option value="retirement-planning">Retirement Planning</option>
+                            <option value="tax-optimization">Tax Optimization</option>
+                            <option value="general-consultation">General Consultation</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" rows="4" 
+                                  placeholder="Describe your financial goals and questions..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="preferredContact" class="form-label">Preferred Contact Method</label>
+                        <select class="form-select" id="preferredContact" required>
+                            <option value="">Select method...</option>
+                            <option value="email">Email</option>
+                            <option value="phone">Phone Call</option>
+                            <option value="video">Video Call</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane me-1"></i>
+                    Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewProfile(brokerId) {
+    // Redirect to broker profile page (can be implemented later)
+    window.location.href = `/brokers/${brokerId}`;
+}
+
+function contactBroker(brokerId, brokerName) {
+    document.getElementById('advisorName').value = brokerName;
+    const contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
+    contactModal.show();
+}
+
+function sendMessage() {
+    const form = document.getElementById('contactForm');
+    const formData = new FormData(form);
+    
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Simulate sending message
+    const submitBtn = event.target;
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Sending...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Sent!';
+        submitBtn.className = 'btn btn-success';
+        
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
+            modal.hide();
+            
+            // Reset form and button
+            form.reset();
+            submitBtn.innerHTML = originalText;
+            submitBtn.className = 'btn btn-primary';
+            submitBtn.disabled = false;
+            
+            // Show success message
+            showAlert('Message sent successfully! The advisor will contact you soon.', 'success');
+        }, 1500);
+    }, 2000);
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+</script>
+
+<style>
+.broker-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.broker-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.stat-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+}
+
+.contact-info i {
+    width: 16px;
+}
+
+.card-header img {
+    border: 2px solid rgba(255,255,255,0.3);
+}
+</style>
+
+<%- include('partials/footer') %>

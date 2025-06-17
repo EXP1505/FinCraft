@@ -1,0 +1,269 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="container">
+    <div class="history-header">
+        <h1>Trade History</h1>
+        <div class="summary-stats">
+            <div class="stat-card">
+                <h3>Total Trades</h3>
+                <span class="stat-value"><%= trades.length %></span>
+            </div>
+            <div class="stat-card">
+                <h3>Total P&L</h3>
+                <span class="stat-value <%= totalPnL >= 0 ? 'profit' : 'loss' %>">
+                    <%= totalPnL >= 0 ? '+' : '' %>$<%= Math.abs(totalPnL).toFixed(2) %>
+                </span>
+            </div>
+            <div class="stat-card">
+                <h3>Win Rate</h3>
+                <span class="stat-value"><%= winRate %>%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="stockFilter">Stock Symbol:</label>
+                <select id="stockFilter" onchange="filterTrades()">
+                    <option value="">All Stocks</option>
+                    <% uniqueStocks.forEach(stock => { %>
+                        <option value="<%= stock %>"><%= stock %></option>
+                    <% }) %>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="tradeTypeFilter">Trade Type:</label>
+                <select id="tradeTypeFilter" onchange="filterTrades()">
+                    <option value="">All Types</option>
+                    <option value="buy">Buy</option>
+                    <option value="sell">Sell</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="timeFilter">Time Period:</label>
+                <select id="timeFilter" onchange="filterTrades()">
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="year">This Year</option>
+                </select>
+            </div>
+            
+            <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
+        </div>
+    </div>
+
+    <!-- Trades Table -->
+    <div class="trades-table-container">
+        <% if (trades.length === 0) { %>
+            <div class="no-trades">
+                <div class="no-trades-icon">📊</div>
+                <h3>No trades found</h3>
+                <p>Start trading to see your history here!</p>
+                <a href="/stocks" class="btn btn-primary">Browse Stocks</a>
+            </div>
+        <% } else { %>
+            <table class="trades-table" id="tradesTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Date <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(1)">Stock <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(2)">Type <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(3)">Quantity <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(4)">Price <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(5)">Total <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(6)">P&L <span class="sort-arrow">↕️</span></th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% trades.forEach(trade => { %>
+                        <tr class="trade-row" data-stock="<%= trade.stockSymbol %>" data-type="<%= trade.type %>" data-date="<%= trade.createdAt.getTime() %>">
+                            <td class="trade-date">
+                                <%= trade.createdAt.toLocaleDateString() %>
+                                <span class="trade-time"><%= trade.createdAt.toLocaleTimeString() %></span>
+                            </td>
+                            <td class="stock-symbol">
+                                <a href="/stock/<%= trade.stockSymbol %>"><%= trade.stockSymbol %></a>
+                            </td>
+                            <td class="trade-type">
+                                <span class="type-badge <%= trade.type %>"><%= trade.type.toUpperCase() %></span>
+                            </td>
+                            <td class="quantity"><%= trade.quantity %></td>
+                            <td class="price">$<%= trade.price.toFixed(2) %></td>
+                            <td class="total">$<%= (trade.quantity * trade.price).toFixed(2) %></td>
+                            <td class="pnl <%= trade.profitLoss >= 0 ? 'profit' : 'loss' %>">
+                                <% if (trade.profitLoss !== undefined && trade.profitLoss !== null) { %>
+                                    <%= trade.profitLoss >= 0 ? '+' : '' %>$<%= Math.abs(trade.profitLoss).toFixed(2) %>
+                                <% } else { %>
+                                    <span class="pending">Pending</span>
+                                <% } %>
+                            </td>
+                            <td class="status">
+                                <% if (trade.type === 'buy') { %>
+                                    <span class="status-badge holding">Holding</span>
+                                <% } else { %>
+                                    <span class="status-badge completed">Completed</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (trades.length > 20) { %>
+        <div class="pagination">
+            <button class="page-btn" onclick="changePage(-1)">← Previous</button>
+            <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages"><%= Math.ceil(trades.length / 20) %></span></span>
+            <button class="page-btn" onclick="changePage(1)">Next →</button>
+        </div>
+    <% } %>
+</div>
+
+<script>
+// Filter trades functionality
+function filterTrades() {
+    const stockFilter = document.getElementById('stockFilter').value;
+    const typeFilter = document.getElementById('tradeTypeFilter').value;
+    const timeFilter = document.getElementById('timeFilter').value;
+    const rows = document.querySelectorAll('.trade-row');
+    
+    rows.forEach(row => {
+        let show = true;
+        
+        // Stock filter
+        if (stockFilter && row.dataset.stock !== stockFilter) {
+            show = false;
+        }
+        
+        // Type filter
+        if (typeFilter && row.dataset.type !== typeFilter) {
+            show = false;
+        }
+        
+        // Time filter
+        if (timeFilter) {
+            const tradeDate = new Date(parseInt(row.dataset.date));
+            const now = new Date();
+            
+            switch(timeFilter) {
+                case 'today':
+                    if (tradeDate.toDateString() !== now.toDateString()) show = false;
+                    break;
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    if (tradeDate < weekAgo) show = false;
+                    break;
+                case 'month':
+                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    if (tradeDate < monthAgo) show = false;
+                    break;
+                case 'year':
+                    const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                    if (tradeDate < yearAgo) show = false;
+                    break;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+    changePage(0); // Reset to first page after filtering
+}
+
+function clearFilters() {
+    document.getElementById('stockFilter').value = '';
+    document.getElementById('tradeTypeFilter').value = '';
+    document.getElementById('timeFilter').value = '';
+    filterTrades();
+}
+
+// Sort table functionality
+let sortDirection = {};
+
+function sortTable(columnIndex) {
+    const table = document.getElementById('tradesTable');
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.querySelectorAll('tr:not([style*="display: none"])'));
+    
+    const direction = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+    sortDirection[columnIndex] = direction;
+    
+    rows.sort((a, b) => {
+        let aVal = a.cells[columnIndex].textContent.trim();
+        let bVal = b.cells[columnIndex].textContent.trim();
+        
+        // Handle different data types
+        if (columnIndex === 0) { // Date
+            aVal = new Date(Number(a.dataset.date)).getTime();
+            bVal = new Date(Number(b.dataset.date)).getTime();
+        } else if (columnIndex === 3 || columnIndex === 4 || columnIndex === 5) { // Numbers
+            aVal = parseFloat(aVal.replace(/,/g, ''));
+            bVal = parseFloat(bVal.replace(/,/g, ''));
+        }
+        
+        if (direction === 'asc') {
+            return aVal > bVal ? 1 : -1;
+        } else {
+            return aVal < bVal ? 1 : -1;
+        }
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+    changePage(0); // Reset to first page after sorting
+}
+
+// Pagination functionality
+let currentPage = 1;
+const rowsPerPage = 20;
+
+function changePage(direction) {
+    const table = document.getElementById('tradesTable');
+    // Only consider visible rows for pagination
+    const allRows = Array.from(table.querySelectorAll('.trade-row'));
+    const visibleRows = allRows.filter(row => row.style.display !== 'none');
+    const totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+
+    if (typeof direction === 'number') {
+        currentPage += direction;
+    } else {
+        currentPage = 1;
+    }
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    let visibleIndex = 0;
+    allRows.forEach(row => {
+        if (row.style.display === 'none') return;
+        row.style.display = (visibleIndex >= start && visibleIndex < end) ? '' : 'none';
+        visibleIndex++;
+    });
+
+    document.getElementById('currentPage').textContent = currentPage;
+
+    // Update button states
+    const prevBtn = document.querySelector('.page-btn:first-child');
+    const nextBtn = document.querySelector('.page-btn:last-child');
+    if (prevBtn && nextBtn) {
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    }
+}
+// Call pagination on page load
+window.onload = function() {
+    changePage(0);
+};
+</script>
+
+<%- include('partials/footer') %>

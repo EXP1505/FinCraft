@@ -1,0 +1,36 @@
+<%- include('../partials/header', { title: 'Login' }) %>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="/images/logo.png" alt="StockSage Logo" style="height:150px;vertical-align:centre;">
+            <p>Welcome back! Please sign in to your account.</p>
+        </div>
+        
+        <% if (error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+        
+        <form action="/auth/login" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="/auth/register">Sign up here</a></p>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

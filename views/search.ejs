@@ -1,0 +1,241 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="container">
+    <div class="search-header">
+        <h1>Stock Search</h1>
+        
+        <!-- Search Form -->
+        <form class="search-form" action="/search" method="GET">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    name="query" 
+                    id="searchInput"
+                    placeholder="Enter stock symbol or company name (e.g., AAPL, Apple)" 
+                    value="<%= query || '' %>"
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="search-btn">
+                    <span class="search-icon">🔍</span>
+                    Search
+                </button>
+            </div>
+            <div class="search-suggestions" id="searchSuggestions"></div>
+        </form>
+    </div>
+
+    <% if (query) { %>
+        <div class="search-results-header">
+            <h2>Search Results for "<%= query %>"</h2>
+            <p class="results-count">
+                <% if (results && results.length > 0) { %>
+                    Found <%= results.length %> result<%= results.length !== 1 ? 's' : '' %>
+                <% } else { %>
+                    No results found
+                <% } %>
+            </p>
+        </div>
+
+        <div class="search-results">
+            <% if (results && results.length > 0) { %>
+                <div class="stocks-grid">
+                    <% results.forEach(stock => { %>
+                        <div class="stock-card" onclick="goToStock('<%= stock.symbol %>')">
+                            <div class="stock-header">
+                                <div class="stock-symbol">
+                                    <h3><%= stock.symbol %></h3>
+                                    <span class="stock-exchange"><%= stock.exchange || 'NASDAQ' %></span>
+                                </div>
+                                <div class="stock-price">
+                                    <span class="current-price">$<%= stock.currentPrice ? stock.currentPrice : 'N/A' %></span>
+                                    <% if (stock.change !== undefined) { %>
+                                        <span class="price-change <%= stock.change >= 0 ? 'positive' : 'negative' %>">
+                                            <%= stock.change >= 0 ? '+' : '' %><%= stock.change.toFixed(2) %> 
+                                            (<%= stock.changePercent ? stock.changePercent.toFixed(2) : '0.00' %>%)
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+                            <div class="stock-info">
+                                <h4 class="company-name"><%= stock.companyName || stock.name || stock.symbol %></h4>
+                                <p class="stock-description">
+                                    <%= stock.description || stock.industry || 'Click to view detailed information and trade this stock' %>
+                                </p>
+                            </div>
+                            
+                            <div class="stock-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Market Cap:</span>
+                                    <span class="stat-value">
+                                        <% if (stock.marketCap) { %>
+                                            $<%= (stock.marketCap / 1000000000).toFixed(1) %>B
+                                        <% } else { %>
+                                            N/A
+                                        <% } %>
+                                    </span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Volume:</span>
+                                    <span class="stat-value">
+                                        <%= stock.volume ? stock.volume.toLocaleString() : 'N/A' %>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="stock-actions">
+                                <button class="btn btn-primary" onclick="goToStock('<%= stock.symbol %>')">
+                                    View Details
+                                </button>
+                                <button class="btn btn-secondary" onclick="addToWatchlist('<%= stock.symbol %>')">
+                                    <span class="watchlist-icon">⭐</span>
+                                    Add to Watchlist
+                                </button>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="no-results">
+                    <div class="no-results-icon">📈</div>
+                    <h3>No stocks found</h3>
+                    <p>Try searching with different keywords:</p>
+                    <ul class="search-tips">
+                        <li>Use stock symbols (e.g., AAPL, MSFT, GOOGL)</li>
+                        <li>Try company names (e.g., Apple, Microsoft, Google)</li>
+                        <li>Check your spelling</li>
+                        <li>Use broader search terms</li>
+                    </ul>
+                    
+                    <div class="popular-stocks">
+                        <h4>Popular Stocks:</h4>
+                        <div class="popular-stock-tags">
+                            <span class="stock-tag" onclick="searchStock('AAPL')">AAPL</span>
+                            <span class="stock-tag" onclick="searchStock('MSFT')">MSFT</span>
+                            <span class="stock-tag" onclick="searchStock('GOOGL')">GOOGL</span>
+                            <span class="stock-tag" onclick="searchStock('AMZN')">AMZN</span>
+                            <span class="stock-tag" onclick="searchStock('TSLA')">TSLA</span>
+                            <span class="stock-tag" onclick="searchStock('NVDA')">NVDA</span>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    <% } else { %>
+        <!-- Initial search page without results -->
+        <div class="search-welcome">
+            <div class="welcome-content">
+                <h2>Find Your Next Investment</h2>
+                <p>Search for stocks by symbol or company name to get real-time data and start trading</p>
+                
+                <div class="search-examples">
+                    <h3>Try searching for:</h3>
+                    <div class="example-searches">
+                        <div class="example-item" onclick="searchStock('AAPL')">
+                            <strong>AAPL</strong> - Apple Inc.
+                        </div>
+                        <div class="example-item" onclick="searchStock('TSLA')">
+                            <strong>TSLA</strong> - Tesla Inc.
+                        </div>
+                        <div class="example-item" onclick="searchStock('MSFT')">
+                            <strong>MSFT</strong> - Microsoft Corporation
+                        </div>
+                        <div class="example-item" onclick="searchStock('GOOGL')">
+                            <strong>GOOGL</strong> - Alphabet Inc.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <a href="/stocks" class="btn btn-outline">Browse All Stocks</a>
+                    <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<script>
+// Navigate to individual stock page
+function goToStock(symbol) {
+    window.location.href = `/stock/${symbol}`;
+}
+
+// Add stock to watchlist
+async function addToWatchlist(symbol) {
+    try {
+        const response = await fetch('/api/watchlist/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ symbol: symbol })
+        });
+        
+        if (response.ok) {
+            alert(`${symbol} added to your watchlist!`);
+        } else {
+            alert('Failed to add to watchlist. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error adding to watchlist:', error);
+        alert('Failed to add to watchlist. Please try again.');
+    }
+}
+
+// Search for a specific stock
+function searchStock(symbol) {
+    document.getElementById('searchInput').value = symbol;
+    document.querySelector('.search-form').submit();
+}
+
+// Auto-complete functionality (basic implementation)
+let searchTimeout;
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    
+    if (query.length < 2) {
+        document.getElementById('searchSuggestions').innerHTML = '';
+        return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+        // This would typically call an API for suggestions
+        // For now, we'll show some common stock symbols
+        const commonStocks = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX'];
+        const suggestions = commonStocks.filter(stock => 
+            stock.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        if (suggestions.length > 0) {
+            const suggestionHtml = suggestions.map(stock => 
+                `<div class="suggestion-item" onclick="searchStock('${stock}')">${stock}</div>`
+            ).join('');
+            document.getElementById('searchSuggestions').innerHTML = suggestionHtml;
+        } else {
+            document.getElementById('searchSuggestions').innerHTML = '';
+        }
+    }, 300);
+});
+
+// Hide suggestions when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-input-group')) {
+        document.getElementById('searchSuggestions').innerHTML = '';
+    }
+});
+
+// Handle form submission
+document.querySelector('.search-form').addEventListener('submit', function(e) {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) {
+        e.preventDefault();
+        alert('Please enter a stock symbol or company name');
+    }
+});
+</script>
+
+<%- include('partials/footer') %>

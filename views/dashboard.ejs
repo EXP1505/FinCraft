@@ -1,0 +1,150 @@
+<%- include('partials/header', { title: 'Dashboard' }) %>
+<%- include('partials/navbar') %>
+
+<div class="container">
+    <!-- Search Section -->
+    <div class="search-section">
+        <h2>Search Stocks</h2>
+        <form action="/search" method="GET" class="search-form">
+            <div class="search-input-group">
+                <input type="text" name="symbol" placeholder="Enter stock symbol (e.g., AAPL, GOOGL)" required>
+                <button type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Analytics Overview -->
+    <div class="analytics-overview">
+        <h2>Portfolio Overview</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>All Time</h3>
+                    <p class="<%= analytics.allTime >= 0 ? 'profit' : 'loss' %>">
+                        $<%= analytics.allTime.toFixed(2) %>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>1 Year</h3>
+                    <p class="<%= year.netProfit >= 0 ? 'profit' : 'loss' %>">
+                        $<%= year.netProfit.toFixed(2) %>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>1 Month</h3>
+                    <p class="<%= month.netProfit >= 0 ? 'profit' : 'loss' %>">
+                        $<%= month.netProfit.toFixed(2) %>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>1 Week</h3>
+                    <p class="<%= week.netProfit >= 0 ? 'profit' : 'loss' %>">
+                        $<%= week.netProfit.toFixed(2) %>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Today</h3>
+                    <p class="<%= today.netProfit >= 0 ? 'profit' : 'loss' %>">
+                        $<%= today.netProfit.toFixed(2) %>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Trades -->
+    <div class="recent-section">
+        <div class="section-header">
+            <h2>Recent Trades</h2>
+            <a href="/history" class="view-all-btn">View All</a>
+        </div>
+        <div class="trades-list">
+            <% if (recentTrades.length > 0) { %>
+                <% recentTrades.forEach(trade => { %>
+                    <div class="trade-item">
+                        <div class="trade-symbol">
+                            <strong><%= trade.symbol %></strong>
+                        </div>
+                        <div class="trade-details">
+                            <span class="trade-type <%= trade.type.toLowerCase() %>">
+                                <%= trade.type.toUpperCase() %>
+                            </span>
+                            <span class="trade-quantity"><%= trade.quantity %> shares</span>
+                            <span class="trade-price">$<%= trade.price.toFixed(2) %></span>
+                        </div>
+                        <div class="trade-result">
+                            <span class="trade-profit <%= trade.profit >= 0 ? 'profit' : 'loss' %>">
+                                $<%= trade.profit.toFixed(2) %>
+                            </span>
+                            <span class="trade-date">
+                                <%= new Date(trade.createdAt).toLocaleDateString() %>
+                            </span>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="no-trades">
+                    <i class="fas fa-chart-bar"></i>
+                    <p>No trades yet. Start by searching for stocks!</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Watchlist -->
+    <div class="watchlist-section">
+        <div class="section-header">
+            <h2>My Watchlist</h2>
+            <a href="/stocks" class="view-all-btn">Browse Stocks</a>
+        </div>
+        <div class="watchlist-grid">
+            <% if (watchlist.length > 0) { %>
+                <% watchlist.forEach(stock => { %>
+                    <div class="watchlist-item">
+                        <a href="/stock/<%= stock.symbol %>">
+                            <div class="stock-symbol"><%= stock.symbol %></div>
+                            <div class="stock-name"><%= stock.name %></div>
+                            <div class="stock-price">$<%= stock.price ? stock.price.toFixed(2) : 'Loading...' %></div>
+                        </a>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="no-watchlist">
+                    <i class="fas fa-star"></i>
+                    <p>Your watchlist is empty. Add stocks to track them!</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,195 @@
+<%- include('partials/header', { title: 'Stocks' }) %>
+<%- include('partials/navbar') %>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Browse Stocks</h1>
+        <p>Discover and track your favorite stocks</p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <form action="/search" method="GET" class="search-form">
+            <div class="search-input-group">
+                <input type="text" name="symbol" placeholder="Search by symbol (AAPL, GOOGL, TSLA...)" value="<%= searchQuery || '' %>">
+                <button type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Popular Stocks -->
+    <div class="stocks-section">
+    <h2>Popular Stocks</h2>
+    <% if (!stocks || stocks.length === 0) { %>
+      <div style="text-align:center; color:#888; margin: 2rem 0;">
+          No stocks to display. Try searching above!
+      </div>
+    <% } %>
+    <div class="stocks-grid">
+            <% stocks.forEach(stock => { %>
+            <div class="stock-card">
+                <a href="/stock/<%= stock.symbol %>">
+                    <div class="stock-header">
+                        <h3><%= stock.symbol %></h3>
+                        <button class="watchlist-btn" data-symbol="<%= stock.symbol %>">
+                            <i class="fas fa-star"></i>
+                        </button>
+                    </div>
+                    <div class="stock-info">
+                        <div class="stock-price">
+                            $<%= stock.price ? stock.price.toFixed(2) : 'N/A' %>
+                        </div>
+                        <div class="stock-change <%= stock.change >= 0 ? 'positive' : 'negative' %>">
+                            <%= stock.change >= 0 ? '+' : '' %><%= stock.change.toFixed(2) %>
+                            (<%= stock.changePercent.toFixed(2) %>%)
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <!-- My Watchlist -->
+    <% if (watchlist && watchlist.length > 0) { %>
+        <div class="watchlist-section">
+            <h2>My Watchlist</h2>
+            <div class="stocks-grid">
+                <% watchlist.forEach(stock => { %>
+                    <div class="stock-card">
+                        <a href="/stock/<%= stock.symbol %>">
+                            <div class="stock-header">
+                                <h3><%= stock.symbol %></h3>
+                                <button class="watchlist-btn active" data-symbol="<%= stock.symbol %>">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            </div>
+                            <div class="stock-info">
+                                <div class="stock-name"><%= stock.name || stock.symbol %></div>
+                                <div class="stock-price">
+                                    $<%= stock.price ? stock.price.toFixed(2) : 'Loading...' %>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Market Categories -->
+    <div class="categories-section">
+        <h2>Market Categories</h2>
+        <div class="categories-grid">
+            <div class="category-card">
+                <h3>Technology</h3>
+                <p>AAPL, GOOGL, MSFT, NVDA</p>
+                <div class="category-stocks">
+                    <a href="/stock/AAPL">AAPL</a>
+                    <a href="/stock/GOOGL">GOOGL</a>
+                    <a href="/stock/MSFT">MSFT</a>
+                    <a href="/stock/NVDA">NVDA</a>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <h3>Electric Vehicles</h3>
+                <p>TSLA, NIO, XPEV, LI</p>
+                <div class="category-stocks">
+                    <a href="/stock/TSLA">TSLA</a>
+                    <a href="/stock/NIO">NIO</a>
+                    <a href="/stock/XPEV">XPEV</a>
+                    <a href="/stock/LI">LI</a>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <h3>Social Media</h3>
+                <p>META, TWTR, SNAP, PINS</p>
+                <div class="category-stocks">
+                    <a href="/stock/META">META</a>
+                    <a href="/stock/SNAP">SNAP</a>
+                    <a href="/stock/PINS">PINS</a>
+                </div>
+            </div>
+            
+            <div class="category-card">
+                <h3>Finance</h3>
+                <p>JPM, BAC, WFC, GS</p>
+                <div class="category-stocks">
+                    <a href="/stock/JPM">JPM</a>
+                    <a href="/stock/BAC">BAC</a>
+                    <a href="/stock/WFC">WFC</a>
+                    <a href="/stock/GS">GS</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load stock prices for popular stocks
+document.addEventListener('DOMContentLoaded', function() {
+    const popularStocks = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX'];
+    
+    popularStocks.forEach(symbol => {
+        fetch(`/api/stock/${symbol}/quote`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const priceElement = document.getElementById(`price-${symbol}`);
+                    const changeElement = document.getElementById(`change-${symbol}`);
+                    
+                    if (priceElement) {
+                        priceElement.textContent = `$${data.quote.c.toFixed(2)}`;
+                    }
+                    
+                    if (changeElement) {
+                        const change = data.quote.d;
+                        const changePercent = data.quote.dp;
+                        changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${changePercent.toFixed(2)}%)`;
+                        changeElement.className = `stock-change ${change >= 0 ? 'positive' : 'negative'}`;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error(`Error loading ${symbol}:`, error);
+            });
+    });
+});
+
+// Watchlist functionality
+document.querySelectorAll('.watchlist-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const symbol = this.dataset.symbol;
+        const isActive = this.classList.contains('active');
+        
+        fetch('/api/watchlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                symbol: symbol,
+                action: isActive ? 'remove' : 'add'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.classList.toggle('active');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating watchlist:', error);
+        });
+    });
+});
+</script>
+
+<%- include('partials/footer') %>
