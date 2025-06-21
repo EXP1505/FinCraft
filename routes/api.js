@@ -53,7 +53,7 @@ router.get('/quote/:symbol', async (req, res) => {
 });
 
 // Get stock candle data (historical prices for charts)
-router.get('/api/candle/:symbol', async (req, res) => {
+router.get('/candle/:symbol', async (req, res) => {
   try {
     const { symbol } = req.params;
     const { resolution = 'D', from, to } = req.query;

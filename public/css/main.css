@@ -983,3 +983,37 @@ body {
 #stockChart {
     min-height: 200px;
 }
+
+/* Extra Large Profile Image Version */
+.profile-image {
+    width: 150px !important;        /* Extra large */
+    height: 150px !important;
+    border-radius: 50% !important;
+    object-fit: cover;
+    border: 5px solid #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-overlay {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 40px;            /* Slightly larger overlay for bigger image */
+    height: 40px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: 3px solid #fff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-overlay i {
+    font-size: 16px;        /* Larger icon for bigger overlay */
+}

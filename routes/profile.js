@@ -14,7 +14,8 @@ const storage = multer.diskStorage({
         cb(null, 'public/uploads/');
     },
     filename: function (req, file, cb) {
-        cb(null, req.session.userId + path.extname(file.originalname));
+        // Use req.session.user.id instead of req.session.userId
+        cb(null, req.session.user.id + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });
@@ -22,7 +23,8 @@ const upload = multer({ storage: storage });
 router.post('/upload-image', requireAuth, upload.single('profileImage'), async (req, res) => {
     try {
         const imagePath = '/uploads/' + req.file.filename;
-        await User.findByIdAndUpdate(req.session.userId, { profileImage: imagePath });
+        // Fixed: Use req.session.user.id instead of req.session.userId
+        await User.findByIdAndUpdate(req.session.user.id, { profileImage: imagePath });
         res.json({ success: true, imagePath });
     } catch (error) {
         console.error('Error uploading image:', error);
@@ -33,16 +35,18 @@ router.post('/upload-image', requireAuth, upload.single('profileImage'), async (
 // GET profile page
 router.get('/', requireAuth, async (req, res) => {
     console.log('Rendering profile with:', {
-        userId: req.session.userId
+        userId: req.session.user.id, // Fixed logging
+        user: req.user
     });
     try {
-        const user = await User.findById(req.session.userId);
+        // Since requireAuth middleware already fetches the user, we can use req.user
+        const user = req.user || await User.findById(req.session.user.id);
         
-        // Get user statistics
-        const stats = await getUserStats(req.session.userId);
+        // Get user statistics - Fixed: Use req.session.user.id
+        const stats = await getUserStats(req.session.user.id);
         
-        // Get recent trades (last 10)
-        const recentTrades = await Trade.find({ userId: req.session.userId })
+        // Get recent trades (last 10) - Fixed: Use req.session.user.id
+        const recentTrades = await Trade.find({ userId: req.session.user.id })
             .sort({ date: -1 })
             .limit(10)
             .lean();
@@ -62,23 +66,47 @@ router.get('/', requireAuth, async (req, res) => {
     }
 });
 
-// POST update profile
+// POST update profile - FIXED VERSION
 router.post('/update', requireAuth, async (req, res) => {
     try {
+        console.log('Update request body:', req.body);
+        console.log('User ID from session:', req.session.user.id);
+        
         const { name, email, phone, experienceLevel, bio } = req.body;
         
         // Validate required fields
         if (!name || !email) {
+            console.log('Validation failed: missing name or email');
             return res.status(400).json({
                 success: false,
                 message: 'Name and email are required'
             });
         }
 
-        // Check if email is already taken by another user
+        // Trim and validate input
+        const trimmedName = name.trim();
+        const trimmedEmail = email.toLowerCase().trim();
+
+        if (trimmedName.length === 0 || trimmedEmail.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Name and email cannot be empty'
+            });
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid email address'
+            });
+        }
+
+        // Check if email is already taken by another user - Fixed: Use req.session.user.id
         const existingUser = await User.findOne({ 
-            email: email.toLowerCase(),
-            _id: { $ne: req.session.userId }
+            email: trimmedEmail,
+            _id: { $ne: req.session.user.id }
         });
 
         if (existingUser) {
@@ -88,17 +116,22 @@ router.post('/update', requireAuth, async (req, res) => {
             });
         }
 
-        // Update user profile
+        // Prepare update data
+        const updateData = {
+            name: trimmedName,
+            email: trimmedEmail,
+            phone: phone ? phone.trim() : null,
+            experienceLevel: experienceLevel || 'beginner',
+            bio: bio ? bio.trim() : null,
+            updatedAt: new Date()
+        };
+
+        console.log('Updating user with data:', updateData);
+
+        // Update user profile - Fixed: Use req.session.user.id
         const updatedUser = await User.findByIdAndUpdate(
-            req.session.userId,
-            {
-                name: name.trim(),
-                email: email.toLowerCase().trim(),
-                phone: phone ? phone.trim() : null,
-                experienceLevel: experienceLevel || 'beginner',
-                bio: bio ? bio.trim() : null,
-                updatedAt: new Date()
-            },
+            req.session.user.id,
+            updateData,
             { new: true, runValidators: true }
         );
 
@@ -108,6 +141,14 @@ router.post('/update', requireAuth, async (req, res) => {
                 message: 'User not found'
             });
         }
+
+        console.log('User updated successfully:', updatedUser._id);
+
+        // Update session data with new information
+        req.session.user.email = updatedUser.email;
+        // If you have firstName/lastName fields, update them too
+        if (updatedUser.firstName) req.session.user.firstName = updatedUser.firstName;
+        if (updatedUser.lastName) req.session.user.lastName = updatedUser.lastName;
 
         res.json({
             success: true,
@@ -132,6 +173,13 @@ router.post('/update', requireAuth, async (req, res) => {
             });
         }
 
+        if (error.name === 'CastError') {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid user ID'
+            });
+        }
+
         res.status(500).json({
             success: false,
             message: 'Error updating profile. Please try again.'
@@ -139,7 +187,7 @@ router.post('/update', requireAuth, async (req, res) => {
     }
 });
 
-// POST change password
+// POST change password - Fixed: Use req.session.user.id
 router.post('/change-password', requireAuth, async (req, res) => {
     try {
         const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -166,8 +214,8 @@ router.post('/change-password', requireAuth, async (req, res) => {
             });
         }
 
-        // Get user and verify current password
-        const user = await User.findById(req.session.userId);
+        // Get user and verify current password - Fixed: Use req.session.user.id
+        const user = await User.findById(req.session.user.id);
         const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
 
         if (!isCurrentPasswordValid) {
@@ -177,11 +225,11 @@ router.post('/change-password', requireAuth, async (req, res) => {
             });
         }
 
-        // Hash new password and update
+        // Hash new password and update - Fixed: Use req.session.user.id
         const saltRounds = 10;
         const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-        await User.findByIdAndUpdate(req.session.userId, {
+        await User.findByIdAndUpdate(req.session.user.id, {
             password: hashedNewPassword,
             updatedAt: new Date()
         });
@@ -200,10 +248,10 @@ router.post('/change-password', requireAuth, async (req, res) => {
     }
 });
 
-// POST delete account
+// POST delete account - Fixed: Use req.session.user.id
 router.post('/delete', requireAuth, async (req, res) => {
     try {
-        const userId = req.session.userId;
+        const userId = req.session.user.id;
 
         // Delete all user trades
         await Trade.deleteMany({ userId });
@@ -229,7 +277,7 @@ router.post('/delete', requireAuth, async (req, res) => {
     }
 });
 
-// Helper function to get user statistics
+// Helper function to get user statistics - Fixed: Parameter name
 async function getUserStats(userId) {
     try {
         const trades = await Trade.find({ userId }).lean();
