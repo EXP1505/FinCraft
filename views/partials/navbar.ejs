@@ -17,9 +17,6 @@
             <a href="/brokers">
                 <i class="fas fa-user-tie"></i> Brokers
             </a>
-            <a href="/profile" class="profile-img" title="Profile">
-                <%= user && user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
-            </a>
             <a href="/auth/logout" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -28,4 +25,53 @@
             </a> -->
         </div>
     </div>
+    <!-- In your navbar -->
+<a href="/profile" class="profile-link" title="Profile">
+    <% if (user && user.profileImage) { %>
+        <img src="<%= user.profileImage %>" alt="Profile" class="profile-image-nav">
+    <% } else { %>
+        <div class="profile-initial">
+            <%= user && user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+        </div>
+    <% } %>
+</a>
+
+<!-- Add this CSS to your stylesheet -->
+<style>
+.profile-link {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.profile-image-nav {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.profile-image:hover {
+    border-color: #007bff;
+}
+
+.profile-initial {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.profile-initial:hover {
+    background-color: #0056b3;
+}
+</style>
 </nav>

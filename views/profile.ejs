@@ -231,40 +231,115 @@
 
 <script>
 // Profile page JavaScript
+// Replace the existing JavaScript in your profile.ejs file with this fixed version
+
 document.addEventListener('DOMContentLoaded', function() {
     // Delete confirmation
     const deleteInput = document.getElementById('deleteConfirmation');
     const deleteBtn = document.getElementById('confirmDelete');
     
-    deleteInput.addEventListener('input', function() {
-        deleteBtn.disabled = this.value !== 'DELETE';
-    });
-
-    // Profile form submission
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        fetch('/profile/update', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('Profile updated successfully!', 'success');
-            } else {
-                showAlert('Error updating profile: ' + data.message, 'danger');
-            }
-        })
-        .catch(error => {
-            showAlert('Error updating profile. Please try again.', 'danger');
+    if (deleteInput && deleteBtn) {
+        deleteInput.addEventListener('input', function() {
+            deleteBtn.disabled = this.value !== 'DELETE';
         });
-    });
+    }
+
+    // Profile form submission - FIXED VERSION
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data properly
+            const formData = new FormData(this);
+            
+            // Convert FormData to URLSearchoded format for proper form submission
+            const formDataObj = {};
+            // FIXED: Changed 'of' to 'of' and fixed the destructuring
+            for (let [key, value] of formData.entries()) {
+                formDataObj[key] = value;
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+            submitBtn.disabled = true;
+            
+            fetch('/profile/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(formDataObj)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showAlert('Profile updated successfully!', 'success');
+                } else {
+                    showAlert('Error updating profile: ' + (data.message || 'Unknown error'), 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error updating profile: ' + (error.message || 'Please try again.'), 'danger');
+            })
+            .finally(() => {
+                // Restore button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
+
+    // Profile image upload - FIXED VERSION
+    const imageInput = document.getElementById('profileImageInput');
+    const imageForm = document.getElementById('imageUploadForm');
+    const profileImg = document.getElementById('profileImage');
+
+    if (imageInput && imageForm && profileImg) {
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const formData = new FormData(imageForm);
+                
+                fetch('/profile/upload-image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        profileImg.src = data.imagePath + '?t=' + Date.now();
+                        showAlert('Profile image updated!', 'success');
+                    } else {
+                        showAlert('Image upload failed: ' + (data.message || 'Unknown error'), 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Image upload failed: ' + (error.message || 'Please try again.'), 'danger');
+                });
+            }
+        });
+    }
 });
 
 function showAlert(message, type) {
+    // Remove any existing alerts first
+    const existingAlerts = document.querySelectorAll('.alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
     alertDiv.innerHTML = `
@@ -273,41 +348,17 @@ function showAlert(message, type) {
     `;
     
     const container = document.querySelector('.container');
-    container.insertBefore(alertDiv, container.firstChild);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
-
-// ...existing code...
-// Profile page JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // ...existing code...
-
-    // Profile image upload
-    const imageInput = document.getElementById('profileImageInput');
-    const imageForm = document.getElementById('imageUploadForm');
-    const profileImg = document.getElementById('profileImage');
-
-    imageInput.addEventListener('change', function() {
-        const formData = new FormData(imageForm);
-        fetch('/profile/upload-image', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                profileImg.src = data.imagePath + '?t=' + Date.now();
-                showAlert('Profile image updated!', 'success');
-            } else {
-                showAlert('Image upload failed.', 'danger');
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
             }
-        })
-        .catch(() => showAlert('Image upload failed.', 'danger'));
-    });
-});
+        }, 5000);
+    }
+}
 </script>
 
 <%- include('partials/footer') %>
