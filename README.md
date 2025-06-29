@@ -50,7 +50,6 @@ Get a quick overview of your financial performance:
 
 ## ⚠️ Known Issues
 
-  * **Individual Stock Page Data Display:** The individual stock page (`/stock/:symbol`) is currently unable to display real-time stock data and charts. I am actively working to resolve this.
   * **Register Page Profession Field:** The registration page currently lacks fields to specify a user's profession (e.g., "broker" or "normal trader"). This functionality will be added in a future update.
   * **Dashboard Error After Trade:** When a trade is made from the individual stock page, the dashboard often responds with an error. I am working to fix this interaction.
   * **Watchlist Functionality:** Users are currently unable to add stocks to their watchlist. This feature is being debugged.
