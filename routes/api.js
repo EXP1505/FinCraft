@@ -24,6 +24,24 @@ const makeApiRequest = async (endpoint, params = {}) => {
   }
 };
 
+router.get('/user/profile', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Not authenticated'
+    });
+  }
+  
+  res.json({
+    success: true,
+    user: {
+      id: req.session.user._id,
+      username: req.session.user.username,
+      email: req.session.user.email
+    }
+  });
+});
+
 // Get stock quote (real-time price)
 router.get('/quote/:symbol', async (req, res) => {
   try {
@@ -322,7 +340,7 @@ router.get('/news/:symbol', async (req, res) => {
   }
 });
 
-// Add stock to watchlist
+// Add stock to watchlist (REPLACE the existing function in api.js)
 router.post('/watchlist/add', async (req, res) => {
   try {
     if (!req.session.user) {
@@ -332,7 +350,7 @@ router.post('/watchlist/add', async (req, res) => {
       });
     }
     
-    const { symbol } = req.body;
+    const { symbol, name } = req.body;
     
     if (!symbol) {
       return res.status(400).json({
@@ -343,8 +361,31 @@ router.post('/watchlist/add', async (req, res) => {
     
     const user = await User.findById(req.session.user._id);
     
-    if (!user.watchlist.includes(symbol.toUpperCase())) {
-      user.watchlist.push(symbol.toUpperCase());
+    // Check if stock is already in watchlist
+    const existingStock = user.watchlist.find(item => item.symbol === symbol.toUpperCase());
+    
+    if (!existingStock) {
+      // Get company name if not provided
+      let companyName = name || symbol.toUpperCase();
+      
+      // Try to get company name from profile API
+      if (!name) {
+        try {
+          const profileData = await makeApiRequest('/stock/profile2', { 
+            symbol: symbol.toUpperCase() 
+          });
+          companyName = profileData.name || symbol.toUpperCase();
+        } catch (error) {
+          console.log('Could not fetch company name, using symbol');
+        }
+      }
+      
+      user.watchlist.push({
+        symbol: symbol.toUpperCase(),
+        name: companyName,
+        addedAt: new Date()
+      });
+      
       await user.save();
     }
     
@@ -353,6 +394,7 @@ router.post('/watchlist/add', async (req, res) => {
       message: 'Stock added to watchlist'
     });
   } catch (error) {
+    console.error('Error adding to watchlist:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -360,7 +402,7 @@ router.post('/watchlist/add', async (req, res) => {
   }
 });
 
-// Remove stock from watchlist
+// Remove stock from watchlist 
 router.post('/watchlist/remove', async (req, res) => {
   try {
     if (!req.session.user) {
@@ -380,7 +422,7 @@ router.post('/watchlist/remove', async (req, res) => {
     }
     
     const user = await User.findById(req.session.user._id);
-    user.watchlist = user.watchlist.filter(s => s !== symbol.toUpperCase());
+    user.watchlist = user.watchlist.filter(item => item.symbol !== symbol.toUpperCase());
     await user.save();
     
     res.json({
@@ -388,6 +430,7 @@ router.post('/watchlist/remove', async (req, res) => {
       message: 'Stock removed from watchlist'
     });
   } catch (error) {
+    console.error('Error removing from watchlist:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -395,7 +438,7 @@ router.post('/watchlist/remove', async (req, res) => {
   }
 });
 
-// Get user's watchlist with current prices
+// Get user's watchlist with current prices 
 router.get('/watchlist', async (req, res) => {
   try {
     if (!req.session.user) {
@@ -408,17 +451,28 @@ router.get('/watchlist', async (req, res) => {
     const user = await User.findById(req.session.user._id);
     const watchlistData = [];
     
-    for (const symbol of user.watchlist) {
+    for (const item of user.watchlist) {
       try {
-        const quote = await makeApiRequest('/quote', { symbol });
+        const quote = await makeApiRequest('/quote', { symbol: item.symbol });
         watchlistData.push({
-          symbol,
+          symbol: item.symbol,
+          name: item.name,
           currentPrice: quote.c,
           change: quote.d,
-          changePercent: quote.dp
+          changePercent: quote.dp,
+          addedAt: item.addedAt
         });
       } catch (error) {
-        console.error(`Failed to fetch data for ${symbol}:`, error.message);
+        console.error(`Failed to fetch data for ${item.symbol}:`, error.message);
+        // Add the stock even if we can't get current price
+        watchlistData.push({
+          symbol: item.symbol,
+          name: item.name,
+          currentPrice: null,
+          change: null,
+          changePercent: null,
+          addedAt: item.addedAt
+        });
       }
     }
     
