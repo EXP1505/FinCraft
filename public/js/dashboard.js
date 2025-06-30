@@ -15,6 +15,16 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function initializeDashboard() {
     try {
+        // First check if user is authenticated
+        const isAuthenticated = await debugAuthentication();
+        if (!isAuthenticated) {
+            StockSage.showError('Please log in to view your dashboard');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+            return;
+        }
+
         // Initialize profit/loss chart
         await initializeProfitChart();
         
@@ -166,15 +176,22 @@ async function loadWatchlistPrices() {
     if (!watchlistContainer) return;
     
     try {
+        console.log('🔄 Loading watchlist...');
+        
         // Get user's watchlist from backend
         const response = await fetch('/api/watchlist');
-        const watchlist = await response.json();
         
         if (!response.ok) {
-            throw new Error('Failed to load watchlist');
+            if (response.status === 401) {
+                throw new Error('Authentication required');
+            }
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        if (watchlist.length === 0) {
+        const watchlist = await response.json();
+        console.log('📋 Watchlist loaded:', watchlist);
+        
+        if (!Array.isArray(watchlist) || watchlist.length === 0) {
             watchlistContainer.innerHTML = `
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-star fa-2x mb-3"></i>
@@ -184,6 +201,14 @@ async function loadWatchlistPrices() {
             `;
             return;
         }
+        
+        // Show loading state
+        watchlistContainer.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p class="mt-2">Loading prices...</p>
+            </div>
+        `;
         
         // Load real-time prices for each stock
         const watchlistWithPrices = await Promise.all(
@@ -198,7 +223,7 @@ async function loadWatchlistPrices() {
                         previousClose: quote.pc || 0
                     };
                 } catch (error) {
-                    console.error(`Error fetching price for ${stock.symbol}:`, error);
+                    console.error(`❌ Error fetching price for ${stock.symbol}:`, error);
                     return {
                         ...stock,
                         currentPrice: 0,
@@ -210,17 +235,51 @@ async function loadWatchlistPrices() {
             })
         );
         
+        console.log('💰 Watchlist with prices:', watchlistWithPrices);
+        
         // Render watchlist
         renderWatchlist(watchlistWithPrices);
         
     } catch (error) {
-        console.error('Watchlist loading error:', error);
-        watchlistContainer.innerHTML = `
-            <div class="text-center text-muted">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Error loading watchlist</p>
-            </div>
-        `;
+        console.error('❌ Watchlist loading error:', error);
+        
+        if (error.message.includes('Authentication')) {
+            watchlistContainer.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <p>Please log in to view your watchlist</p>
+                    <a href="/login" class="btn btn-primary btn-sm">Login</a>
+                </div>
+            `;
+        } else {
+            watchlistContainer.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <p>Error loading watchlist: ${error.message}</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadWatchlistPrices()">
+                        Try Again
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+async function debugAuthentication() {
+    try {
+        const response = await fetch('/api/user/profile');
+        const data = await response.json();
+        
+        if (response.ok) {
+            console.log('✅ User authenticated:', data);
+            return true;
+        } else {
+            console.log('❌ User not authenticated:', data.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Authentication check failed:', error);
+        return false;
     }
 }
 

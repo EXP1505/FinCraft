@@ -63,6 +63,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+    console.log('🔍 Session Debug:', {
+        sessionID: req.sessionID,
+        hasUser: !!req.session.user,
+        userID: req.session.user?._id
+    });
+    next();
+});
+
 // Routes
 app.use('/auth', authRoutes);
 app.use('/dashboard', authMiddleware.requireAuth, dashboardRoutes);

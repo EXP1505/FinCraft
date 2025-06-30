@@ -572,14 +572,25 @@ body {
 .watchlist-btn {
     background: none;
     border: none;
-    font-size: 1.2rem;
-    color: #aaa6a6;
     cursor: pointer;
-    transition: color 0.3s;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    color: #666;
 }
 
-.watchlist-btn:hover, .watchlist-btn.active {
+.watchlist-btn:hover {
+    background-color: rgba(255, 215, 0, 0.1);
     color: #ffd700;
+}
+
+.watchlist-btn.in-watchlist i {
+    color: #ffd700 !important;
+}
+
+.watchlist-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .stock-info {
@@ -774,7 +785,7 @@ body {
     background: linear-gradient(135deg, #010b39 0%, #1b0c2a 100%);
     border-radius: 15px;
     padding: 20px;
-    color: rgb(189, 185, 185);
+    color: rgb(255, 255, 255);
     margin-bottom: 20px;
 }
 
@@ -990,7 +1001,7 @@ body {
     height: 150px !important;
     border-radius: 50% !important;
     object-fit: cover;
-    border: 5px solid #fff;
+    border: 5px solid #ffffff;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
@@ -1002,7 +1013,7 @@ body {
     right: 8px;
     width: 40px;            /* Slightly larger overlay for bigger image */
     height: 40px;
-    background-color: #007bff;
+    background-color: #031529;
     border-radius: 50%;
     display: flex;
     align-items: center;
