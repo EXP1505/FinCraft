@@ -340,8 +340,11 @@ router.get('/news/:symbol', async (req, res) => {
   }
 });
 
-// Add stock to watchlist (REPLACE the existing function in api.js)
+// Add stock to watchlist
 router.post('/watchlist/add', async (req, res) => {
+  console.log('📥 Add to watchlist request:', req.body);
+  console.log('👤 Session user:', req.session.user);
+  
   try {
     if (!req.session.user) {
       return res.status(401).json({
@@ -349,61 +352,61 @@ router.post('/watchlist/add', async (req, res) => {
         message: 'Authentication required'
       });
     }
-    
+
     const { symbol, name } = req.body;
     
     if (!symbol) {
       return res.status(400).json({
         success: false,
-        message: 'Symbol is required'
+        message: 'Stock symbol is required'
       });
     }
-    
+
     const user = await User.findById(req.session.user._id);
-    
-    // Check if stock is already in watchlist
-    const existingStock = user.watchlist.find(item => item.symbol === symbol.toUpperCase());
-    
-    if (!existingStock) {
-      // Get company name if not provided
-      let companyName = name || symbol.toUpperCase();
-      
-      // Try to get company name from profile API
-      if (!name) {
-        try {
-          const profileData = await makeApiRequest('/stock/profile2', { 
-            symbol: symbol.toUpperCase() 
-          });
-          companyName = profileData.name || symbol.toUpperCase();
-        } catch (error) {
-          console.log('Could not fetch company name, using symbol');
-        }
-      }
-      
-      user.watchlist.push({
-        symbol: symbol.toUpperCase(),
-        name: companyName,
-        addedAt: new Date()
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
       });
-      
-      await user.save();
     }
-    
+
+    // Check if already in watchlist
+    const exists = user.watchlist.some(item => item.symbol === symbol);
+    if (exists) {
+      return res.json({
+        success: true,
+        message: 'Stock already in watchlist'
+      });
+    }
+
+    // Add to watchlist
+    user.watchlist.push({
+      symbol: symbol,
+      name: name || symbol,
+      addedAt: new Date()
+    });
+
+    await user.save();
+    console.log('✅ Added to watchlist:', symbol);
+
     res.json({
       success: true,
       message: 'Stock added to watchlist'
     });
+
   } catch (error) {
-    console.error('Error adding to watchlist:', error);
+    console.error('❌ Add to watchlist error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Failed to add stock to watchlist'
     });
   }
 });
 
-// Remove stock from watchlist 
+// Remove stock from watchlist
 router.post('/watchlist/remove', async (req, res) => {
+  console.log('📥 Remove from watchlist request:', req.body);
+  
   try {
     if (!req.session.user) {
       return res.status(401).json({
@@ -411,29 +414,48 @@ router.post('/watchlist/remove', async (req, res) => {
         message: 'Authentication required'
       });
     }
-    
+
     const { symbol } = req.body;
     
     if (!symbol) {
       return res.status(400).json({
         success: false,
-        message: 'Symbol is required'
+        message: 'Stock symbol is required'
       });
     }
-    
+
     const user = await User.findById(req.session.user._id);
-    user.watchlist = user.watchlist.filter(item => item.symbol !== symbol.toUpperCase());
-    await user.save();
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Remove from watchlist
+    const initialLength = user.watchlist.length;
+    user.watchlist = user.watchlist.filter(item => item.symbol !== symbol);
     
+    if (user.watchlist.length === initialLength) {
+      return res.json({
+        success: true,
+        message: 'Stock was not in watchlist'
+      });
+    }
+
+    await user.save();
+    console.log('✅ Removed from watchlist:', symbol);
+
     res.json({
       success: true,
       message: 'Stock removed from watchlist'
     });
+
   } catch (error) {
-    console.error('Error removing from watchlist:', error);
+    console.error('❌ Remove from watchlist error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Failed to remove stock from watchlist'
     });
   }
 });

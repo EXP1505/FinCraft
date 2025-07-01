@@ -1,4 +1,8 @@
+// ===== WATCHLIST FUNCTIONALITY =====
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🌟 Watchlist functionality initialized');
+    
     // Initialize watchlist functionality
     initializeWatchlist();
     
@@ -6,165 +10,210 @@ document.addEventListener('DOMContentLoaded', function() {
     loadWatchlistStates();
 });
 
+/**
+ * Initialize watchlist button event handlers
+ */
 function initializeWatchlist() {
-    const watchlistBtns = document.querySelectorAll('.watchlist-btn');
+    // Find all watchlist buttons
+    const watchlistButtons = document.querySelectorAll('.watchlist-btn');
+    console.log('📋 Found watchlist buttons:', watchlistButtons.length);
     
-    watchlistBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const symbol = this.dataset.symbol;
-            const isInWatchlist = this.classList.contains('in-watchlist');
-            
-            // Disable button during request
-            this.disabled = true;
-            
-            if (isInWatchlist) {
-                removeFromWatchlist(symbol, this);
-            } else {
-                addToWatchlist(symbol, this);
-            }
-        });
+    watchlistButtons.forEach(button => {
+        button.addEventListener('click', handleWatchlistClick);
     });
 }
 
-function loadWatchlistStates() {
-    fetch('/api/watchlist')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const watchlistSymbols = data.data.map(item => item.symbol);
-                updateButtonStates(watchlistSymbols);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading watchlist:', error);
-        });
-}
-
-function updateButtonStates(watchlistSymbols) {
-    const watchlistBtns = document.querySelectorAll('.watchlist-btn');
+/**
+ * Handle watchlist button clicks
+ * @param {Event} event - Click event
+ */
+async function handleWatchlistClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
     
-    watchlistBtns.forEach(btn => {
-        const symbol = btn.dataset.symbol;
-        const star = btn.querySelector('i');
-        
-        if (watchlistSymbols.includes(symbol)) {
-            btn.classList.add('in-watchlist');
-            star.style.color = '#ffd700';
-            star.classList.remove('far');
-            star.classList.add('fas');
-        } else {
-            btn.classList.remove('in-watchlist');
-            star.style.color = '';
-            star.classList.remove('fas');
-            star.classList.add('far');
-        }
-    });
-}
-
-function addToWatchlist(symbol, button) {
-    fetch('/api/watchlist/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            symbol: symbol,
-            name: symbol // You can get the actual company name if available
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        button.disabled = false;
-        
-        if (data.success) {
-            button.classList.add('in-watchlist');
-            const star = button.querySelector('i');
-            star.style.color = '#ffd700';
-            star.classList.remove('far');
-            star.classList.add('fas');
-            showToast('Added to watchlist!', 'success');
-        } else {
-            showToast(data.message || 'Failed to add to watchlist', 'error');
-        }
-    })
-    .catch(error => {
-        button.disabled = false;
-        console.error('Error:', error);
-        showToast('Error adding to watchlist', 'error');
-    });
-}
-
-function removeFromWatchlist(symbol, button) {
-    fetch('/api/watchlist/remove', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ symbol: symbol })
-    })
-    .then(response => response.json())
-    .then(data => {
-        button.disabled = false;
-        
-        if (data.success) {
-            button.classList.remove('in-watchlist');
-            const star = button.querySelector('i');
-            star.style.color = '';
-            star.classList.remove('fas');
-            star.classList.add('far');
-            showToast('Removed from watchlist', 'success');
-        } else {
-            showToast(data.message || 'Failed to remove from watchlist', 'error');
-        }
-    })
-    .catch(error => {
-        button.disabled = false;
-        console.error('Error:', error);
-        showToast('Error removing from watchlist', 'error');
-    });
-}
-
-function showToast(message, type) {
-    // Remove any existing toast
-    const existingToast = document.querySelector('.toast');
-    if (existingToast) {
-        existingToast.remove();
+    const button = event.currentTarget;
+    const symbol = button.dataset.symbol;
+    const stockName = button.dataset.name || symbol;
+    
+    console.log('⭐ Watchlist button clicked:', { symbol, stockName });
+    
+    if (!symbol) {
+        console.error('❌ No symbol found on button');
+        showToast('Error: Stock symbol not found', 'error');
+        return;
     }
     
-    // Create new toast
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        background: ${type === 'success' ? '#4CAF50' : '#f44336'};
-        color: white;
-        border-radius: 8px;
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    `;
+    // Disable button during request
+    button.disabled = true;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
-    document.body.appendChild(toast);
+    try {
+        const isInWatchlist = button.classList.contains('in-watchlist');
+        
+        if (isInWatchlist) {
+            await removeFromWatchlist(symbol, button);
+        } else {
+            await addToWatchlist(symbol, stockName, button);
+        }
+        
+    } catch (error) {
+        console.error('❌ Watchlist operation failed:', error);
+        showToast('Failed to update watchlist. Please try again.', 'error');
+        
+        // Restore button
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+    }
+}
+
+/**
+ * Add stock to watchlist
+ * @param {string} symbol - Stock symbol
+ * @param {string} name - Stock name
+ * @param {HTMLElement} button - Button element
+ */
+async function addToWatchlist(symbol, name, button) {
+    console.log('➕ Adding to watchlist:', { symbol, name });
     
-    // Animate in
-    setTimeout(() => toast.style.opacity = '1', 100);
+    try {
+        const response = await fetch('/api/watchlist/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ symbol, name })
+        });
+        
+        const data = await response.json();
+        console.log('📡 Add response:', data);
+        
+        if (response.ok && data.success) {
+            // Update button state
+            button.classList.add('in-watchlist');
+            button.innerHTML = '<i class="fas fa-star"></i>';
+            button.title = 'Remove from watchlist';
+            
+            showToast(`${symbol} added to watchlist`, 'success');
+        } else {
+            throw new Error(data.message || 'Failed to add to watchlist');
+        }
+        
+    } catch (error) {
+        console.error('❌ Add to watchlist error:', error);
+        throw error;
+    } finally {
+        button.disabled = false;
+    }
+}
+
+/**
+ * Remove stock from watchlist
+ * @param {string} symbol - Stock symbol
+ * @param {HTMLElement} button - Button element
+ */
+async function removeFromWatchlist(symbol, button) {
+    console.log('➖ Removing from watchlist:', symbol);
     
-    // Animate out and remove
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => {
-            if (document.body.contains(toast)) {
-                document.body.removeChild(toast);
+    try {
+        const response = await fetch(`/api/watchlist/remove`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ symbol })
+        });
+        
+        const data = await response.json();
+        console.log('📡 Remove response:', data);
+        
+        if (response.ok && data.success) {
+            // Update button state
+            button.classList.remove('in-watchlist');
+            button.innerHTML = '<i class="far fa-star"></i>';
+            button.title = 'Add to watchlist';
+            
+            showToast(`${symbol} removed from watchlist`, 'success');
+        } else {
+            throw new Error(data.message || 'Failed to remove from watchlist');
+        }
+        
+    } catch (error) {
+        console.error('❌ Remove from watchlist error:', error);
+        throw error;
+    } finally {
+        button.disabled = false;
+    }
+}
+
+/**
+ * Load watchlist states for all buttons
+ */
+async function loadWatchlistStates() {
+    console.log('🔄 Loading watchlist states...');
+    
+    try {
+        const response = await fetch('/api/watchlist');
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                console.log('👤 User not authenticated - skipping watchlist states');
+                return;
             }
-        }, 300);
-    }, 3000);
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const watchlist = await response.json();
+        console.log('📋 User watchlist:', watchlist);
+        
+        if (!Array.isArray(watchlist)) {
+            console.log('⚠️ Watchlist is not an array:', watchlist);
+            return;
+        }
+        
+        // Get all symbols in watchlist
+        const watchlistSymbols = watchlist.map(item => item.symbol);
+        
+        // Update button states
+        const buttons = document.querySelectorAll('.watchlist-btn[data-symbol]');
+        buttons.forEach(button => {
+            const symbol = button.dataset.symbol;
+            if (watchlistSymbols.includes(symbol)) {
+                button.classList.add('in-watchlist');
+                button.innerHTML = '<i class="fas fa-star"></i>';
+                button.title = 'Remove from watchlist';
+            } else {
+                button.classList.remove('in-watchlist');
+                button.innerHTML = '<i class="far fa-star"></i>';
+                button.title = 'Add to watchlist';
+            }
+        });
+        
+        console.log('✅ Watchlist states updated');
+        
+    } catch (error) {
+        console.error('❌ Failed to load watchlist states:', error);
+    }
+}
+
+/**
+ * Show toast notification
+ * @param {string} message - Message to show
+ * @param {string} type - Type: success, error, info
+ */
+function showToast(message, type = 'info') {
+    // Check if you have a toast system (Bootstrap, custom, etc.)
+    if (typeof StockSage !== 'undefined' && StockSage.showSuccess) {
+        if (type === 'success') {
+            StockSage.showSuccess(message);
+        } else if (type === 'error') {
+            StockSage.showError(message);
+        } else {
+            console.log(message);
+        }
+    } else {
+        // Fallback to console or simple alert
+        console.log(`${type.toUpperCase()}: ${message}`);
+        // Uncomment if you want alerts: alert(message);
+    }
 }
