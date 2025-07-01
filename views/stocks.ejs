@@ -33,7 +33,9 @@
                 <a href="/stock/<%= stock.symbol %>">
                     <div class="stock-header">
                         <h3><%= stock.symbol %></h3>
-                        <button class="watchlist-btn" data-symbol="<%= stock.symbol %>">
+                        <button class="watchlist-btn" 
+                                data-symbol="<%= stock.symbol %>" 
+                                data-name="<%= stock.name || stock.symbol %>">
                             <i class="far fa-star"></i>
                         </button>
                     </div>
