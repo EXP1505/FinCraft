@@ -11,6 +11,7 @@
             <button class="watchlist-btn" data-symbol="<%=stock.symbol %>">
                 <i class="fas fa-star"></i> <span>Add to Watchlist</span>
             </button>
+            
         </div>
     </div>
 
@@ -189,6 +190,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Include your chart.js file -->
 <script src="/js/chart.js"></script>
+<script src="/js/watchlist.js"></script>
 
 <script>
 // Global variables
@@ -221,6 +223,12 @@ function initializeChart() {
 
         // Generate simple mock data
         const mockData = generateMockData();
+
+        // Dynamically set color based on changePercent
+        const isPositive = <%= stock.changePercent %> >= 0;
+        const borderColor = isPositive ? '#10b981' : '#dc2626';
+        const backgroundColor = isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(220, 38, 38, 0.1)';
+
         
         stockChart = new Chart(ctx, {
             type: 'line',
@@ -229,8 +237,8 @@ function initializeChart() {
                 datasets: [{
                     label: stockSymbol,
                     data: mockData.prices,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: borderColor,
+                    backgroundColor: backgroundColor,
                     borderWidth: 2,
                     fill: true,
                     tension: 0.1,
