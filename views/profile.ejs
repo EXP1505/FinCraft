@@ -73,14 +73,14 @@
 
         <div class="col-md-8">
             <!-- Profile Information Form -->
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
+            <div class="card-shadow-profile">
+                <div class="card-header-profile text-white">
                     <h5 class="mb-0">
                         <i class="fas fa-user-edit me-2"></i>
                         Profile Information
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body-profile">
                     <form class="profile-form" id="profileForm" action="/profile/update" method="POST">
                         <div class="row">
                             <div class="col-md-6">
@@ -152,15 +152,15 @@
             </div>
 
             <!-- Recent Activity -->
-            <div class="card shadow mt-4">
-                <div class="card-header bg-info text-white">
+            <div class="card-shadow-recent mt-4">
+                <div class="card-header-recent text-white">
                     <h5 class="mb-0">
                         <i class="fas fa-history me-2"></i>
                         Recent Activity
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="recent-activity">
+                    <div class="recent-activity text-white">
                         <% if (recentTrades && recentTrades.length > 0) { %>
                             <% recentTrades.forEach(trade => { %>
                                 <div class="activity-item">
@@ -182,7 +182,7 @@
                                 </div>
                             <% }) %>
                         <% } else { %>
-                            <div class="text-center py-4 text-muted">
+                            <div class="text-center py-4 text-white">
                                 <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i>
                                 <p>No trading activity yet. Start by exploring stocks!</p>
                                 <a href="/stocks" class="btn btn-primary">Browse Stocks</a>
