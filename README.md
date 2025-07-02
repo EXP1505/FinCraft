@@ -7,11 +7,11 @@ StockSage is a full-stack finance web application that empowers users to track r
 ### Authentication
 
   * **User Registration:** Securely create an account.
-  * ![Image](https://github.com/user-attachments/assets/f29d4d3a-968f-4878-80ee-302949b74d07)
+    ![Image](https://github.com/user-attachments/assets/f29d4d3a-968f-4878-80ee-302949b74d07)
   * **Login/Logout:** Manage user sessions.
-  * ![Image](https://github.com/user-attachments/assets/e07522a6-2b2d-4e4b-9d4e-c68a6a530ec8)
+    ![Image](https://github.com/user-attachments/assets/e07522a6-2b2d-4e4b-9d4e-c68a6a530ec8)
   * **Password Security:** Passwords are stored using bcrypt hashing for enhanced security.
-  * ![Image](https://github.com/user-attachments/assets/091547c1-cbb4-4e5a-a11d-fa873afa2e67)
+    ![Image](https://github.com/user-attachments/assets/091547c1-cbb4-4e5a-a11d-fa873afa2e67)
 
 ### Dashboard
 
@@ -20,14 +20,14 @@ Get a quick overview of your financial performance:
   * **Profit/Loss Summary:** Track your overall profits and losses for various timeframes (all-time, 1 year, 1 month, 1 week, today).
   * **Trade List:** View a summary of your recent simulated trades.
   * **Watchlist:** Keep an eye on stocks you're interested in.
-  * ![Image](https://github.com/user-attachments/assets/e89b9613-20e6-480e-9575-2fa38e543104)
-  * ![Image](https://github.com/user-attachments/assets/a12b800f-0cf2-4d60-a424-d155520cdcb9)
-   ![Image](https://github.com/user-attachments/assets/b1ace4bf-6ee6-4b05-9d90-f7ddba29f521)
+    ![Image](https://github.com/user-attachments/assets/e89b9613-20e6-480e-9575-2fa38e543104)
+    ![Image](https://github.com/user-attachments/assets/a12b800f-0cf2-4d60-a424-d155520cdcb9)
+     
 ### Stocks Page (`/stocks`)
 
   * **Search & View Stocks:** Easily find and explore different stocks.
   * **Watchlist Management:** Add or remove stocks from your personalized watchlist.
-  
+  ![Image](https://github.com/user-attachments/assets/b1ace4bf-6ee6-4b05-9d90-f7ddba29f521)
 
 ### Individual Stock Page (`/stock/:symbol`)
 
@@ -38,7 +38,7 @@ Get a quick overview of your financial performance:
       * **Trade Logging:** Automatically log trade details including price, timestamp, and calculated profit/loss.
       * **Known Issue:** After making a trade from the individual stock page, the dashboard may display an error. This is an ongoing issue being investigated.
   * **Recommendations:** Get general recommendations (BUY/HOLD/SELL) based on market data.
-  * ![Image](https://github.com/user-attachments/assets/22330117-6376-417c-bac3-b9772c708167)
+    ![Image](https://github.com/user-attachments/assets/22330117-6376-417c-bac3-b9772c708167)
 
 ### Trade History (`/history`)
 
