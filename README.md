@@ -22,12 +22,12 @@ Get a quick overview of your financial performance:
   * **Watchlist:** Keep an eye on stocks you're interested in.
   * ![Image](https://github.com/user-attachments/assets/e89b9613-20e6-480e-9575-2fa38e543104)
   * ![Image](https://github.com/user-attachments/assets/a12b800f-0cf2-4d60-a424-d155520cdcb9)
-
+   ![Image](https://github.com/user-attachments/assets/b1ace4bf-6ee6-4b05-9d90-f7ddba29f521)
 ### Stocks Page (`/stocks`)
 
   * **Search & View Stocks:** Easily find and explore different stocks.
   * **Watchlist Management:** Add or remove stocks from your personalized watchlist.
-  * ![Image](https://github.com/user-attachments/assets/3fd301ad-991c-425d-9020-85056030eaa4)
+  
 
 ### Individual Stock Page (`/stock/:symbol`)
 
