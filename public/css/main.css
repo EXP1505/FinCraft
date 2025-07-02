@@ -355,6 +355,22 @@ body {
 .recent-activity:hover, .watchlist-section:hover {
     box-shadow: 0 15px 40px rgba(255, 255, 255, 0.4);
     transform: translateY(-5px);
+    transition: transform 0.3s;
+}
+
+.card-header-recent{
+    background: #1F2937;
+    padding: 1rem;
+    border-radius: 15px 15px 0 0;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-shadow-recent {
+    box-shadow: 0 10px 30px rgba(121, 3, 3, 0.179);
+    border-radius: 15px;
 }
 .section-header {
     display: flex;
@@ -808,10 +824,28 @@ body {
 .profile-form .form-group {
     margin-bottom: 1.5rem;
 }
+.card-shadow-profile {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+}
+.card-header-profile {
+    background: #012040;
+    border-radius: 15px 15px 0 0;
+    padding: 20px;
+    color: rgb(255, 255, 255);
+    text-align: center;
+}
+.card-body-profile{
+    background: linear-gradient(135deg, #010b39 0%, #1b0c2a 100%);
+    border-radius: 0 0 15px 15px;
+    padding: 20px;
+    color: rgb(255, 255, 255);
+}
 
 .profile-form .form-label {
     font-weight: 600;
-    color: #495057;
+    color: #ffffff;
     margin-bottom: 0.5rem;
 }
 
@@ -823,7 +857,7 @@ body {
 }
 
 .profile-form .form-control:focus {
-    border-color: #526170;
+    border-color: #f4f4f4;
     box-shadow: 0 0 0 0.2rem rgba(181, 189, 197, 0.25);
 }
 
@@ -844,7 +878,7 @@ body {
 .btn-update {
     background: linear-gradient(45deg, #28a745, #20c997);
     border: none;
-    color: white;
+    color: rgb(250, 250, 250);
 }
 
 .btn-update:hover {
@@ -866,7 +900,7 @@ body {
 }
 
 .recent-activity {
-    background: #77b4e9;
+    background: #0c163f;
     border-radius: 10px;
     padding: 15px;
 }
@@ -923,7 +957,7 @@ body {
     overflow: hidden;
 }
 
-.profile-card .card-header {
+.profile-card  {
     background: linear-gradient(135deg, #0c163f 0%, #260f3d 100%);
     border: none;
     padding: 20px;
