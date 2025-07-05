@@ -382,7 +382,7 @@ router.post('/watchlist/add', async (req, res) => {
     // Add to watchlist
     user.watchlist.push({
       symbol: symbol,
-      name: name,
+      name: name || symbol,
       addedAt: new Date()
     });
 

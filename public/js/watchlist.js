@@ -167,6 +167,7 @@ async function loadWatchlistStates() {
         console.log('📋 User watchlist:', watchlist);
         
         const watchlist= result.data || [];
+
         if (!Array.isArray(watchlist)) {
             console.log('⚠️ Watchlist is not an array:', watchlist);
             return;
