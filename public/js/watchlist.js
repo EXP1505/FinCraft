@@ -163,9 +163,11 @@ async function loadWatchlistStates() {
             throw new Error(`HTTP ${response.status}`);
         }
         
-        const watchlist = await response.json();
+        const result = await response.json();
         console.log('📋 User watchlist:', watchlist);
         
+        const watchlist= result.data || [];
+
         if (!Array.isArray(watchlist)) {
             console.log('⚠️ Watchlist is not an array:', watchlist);
             return;
@@ -187,6 +189,7 @@ async function loadWatchlistStates() {
                 button.innerHTML = '<i class="far fa-star"></i>';
                 button.title = 'Add to watchlist';
             }
+
         });
         
         console.log('✅ Watchlist states updated');
