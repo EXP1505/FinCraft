@@ -189,6 +189,7 @@ async function loadWatchlistStates() {
                 button.innerHTML = '<i class="far fa-star"></i>';
                 button.title = 'Add to watchlist';
             }
+
         });
         
         console.log('✅ Watchlist states updated');
