@@ -19,44 +19,61 @@
                 <h3>Win Rate</h3>
                 <span class="stat-value"><%= winRate %>%</span>
             </div>
+            <div class="stat-card">
+                <h3>Avg P&L</h3>
+                <span class="stat-value <%= (totalPnL / trades.length) >= 0 ? 'profit' : 'loss' %>">
+                    <% const avgPnL = trades.length > 0 ? (totalPnL / trades.length) : 0; %>
+                    <%= avgPnL >= 0 ? '+' : '' %>$<%= Math.abs(avgPnL).toFixed(2) %>
+                </span>
+            </div>
         </div>
     </div>
 
     <!-- Filters Section -->
     <div class="filters-section">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label for="stockFilter">Stock Symbol:</label>
-                <select id="stockFilter" onchange="filterTrades()">
-                    <option value="">All Stocks</option>
-                    <% uniqueStocks.forEach(stock => { %>
-                        <option value="<%= stock %>"><%= stock %></option>
-                    <% }) %>
-                </select>
+        <form method="GET" action="/history" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="stock">Stock Symbol:</label>
+                    <select id="stock" name="stock">
+                        <option value="">All Stocks</option>
+                        <% 
+                        // Get unique stock symbols from uniqueStocks array
+                        if (uniqueStocks && uniqueStocks.length > 0) {
+                            uniqueStocks.forEach(stock => { 
+                        %>
+                            <option value="<%= stock %>"><%= stock %></option>
+                        <% 
+                            });
+                        }
+                        %>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="period">Time Period:</label>
+                    <select id="period" name="period">
+                        <option value="">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="apply-filters-btn">Apply Filters</button>
+                    <button type="button" class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
+                </div>
             </div>
-            
-            <div class="filter-group">
-                <label for="tradeTypeFilter">Trade Type:</label>
-                <select id="tradeTypeFilter" onchange="filterTrades()">
-                    <option value="">All Types</option>
-                    <option value="buy">Buy</option>
-                    <option value="sell">Sell</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label for="timeFilter">Time Period:</label>
-                <select id="timeFilter" onchange="filterTrades()">
-                    <option value="">All Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="year">This Year</option>
-                </select>
-            </div>
-            
-            <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
-        </div>
+        </form>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="action-btn" onclick="showStatsModal()">📊 Detailed Stats</button>
+        <button class="action-btn" onclick="showPortfolioModal()">💼 Portfolio</button>
+        <button class="action-btn" onclick="exportTrades()">📤 Export CSV</button>
     </div>
 
     <!-- Trades Table -->
@@ -74,43 +91,43 @@
                     <tr>
                         <th onclick="sortTable(0)">Date <span class="sort-arrow">↕️</span></th>
                         <th onclick="sortTable(1)">Stock <span class="sort-arrow">↕️</span></th>
-                        <th onclick="sortTable(2)">Type <span class="sort-arrow">↕️</span></th>
-                        <th onclick="sortTable(3)">Quantity <span class="sort-arrow">↕️</span></th>
-                        <th onclick="sortTable(4)">Price <span class="sort-arrow">↕️</span></th>
-                        <th onclick="sortTable(5)">Total <span class="sort-arrow">↕️</span></th>
-                        <th onclick="sortTable(6)">P&L <span class="sort-arrow">↕️</span></th>
-                        <th>Status</th>
+                        <th onclick="sortTable(2)">Company <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(3)">Type <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(4)">Quantity <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(5)">Price <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(6)">Total <span class="sort-arrow">↕️</span></th>
+                        <th onclick="sortTable(7)">P&L <span class="sort-arrow">↕️</span></th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% trades.forEach(trade => { %>
-                        <tr class="trade-row" data-stock="<%= trade.stockSymbol %>" data-type="<%= trade.type %>" data-date="<%= trade.createdAt.getTime() %>">
+                        <tr class="trade-row" data-stock="<%= trade.symbol %>" data-type="<%= trade.action.toLowerCase() %>" data-date="<%= trade.timestamp.getTime() %>">
                             <td class="trade-date">
-                                <%= trade.createdAt.toLocaleDateString() %>
-                                <span class="trade-time"><%= trade.createdAt.toLocaleTimeString() %></span>
+                                <%= trade.timestamp.toLocaleDateString() %>
+                                <span class="trade-time"><%= trade.timestamp.toLocaleTimeString() %></span>
                             </td>
                             <td class="stock-symbol">
-                                <a href="/stock/<%= trade.stockSymbol %>"><%= trade.stockSymbol %></a>
+                                <a href="/stock/<%= trade.symbol %>"><%= trade.symbol %></a>
+                            </td>
+                            <td class="company-name">
+                                <%= trade.companyName || trade.symbol %>
                             </td>
                             <td class="trade-type">
-                                <span class="type-badge <%= trade.type %>"><%= trade.type.toUpperCase() %></span>
+                                <span class="type-badge <%= trade.action.toLowerCase() %>"><%= trade.action %></span>
                             </td>
-                            <td class="quantity"><%= trade.quantity %></td>
+                            <td class="quantity"><%= trade.quantity.toLocaleString() %></td>
                             <td class="price">$<%= trade.price.toFixed(2) %></td>
                             <td class="total">$<%= (trade.quantity * trade.price).toFixed(2) %></td>
                             <td class="pnl <%= trade.profitLoss >= 0 ? 'profit' : 'loss' %>">
-                                <% if (trade.profitLoss !== undefined && trade.profitLoss !== null) { %>
+                                <% if (trade.profitLoss !== undefined && trade.profitLoss !== null && trade.profitLoss !== 0) { %>
                                     <%= trade.profitLoss >= 0 ? '+' : '' %>$<%= Math.abs(trade.profitLoss).toFixed(2) %>
                                 <% } else { %>
-                                    <span class="pending">Pending</span>
+                                    <span class="pending">-</span>
                                 <% } %>
                             </td>
-                            <td class="status">
-                                <% if (trade.type === 'buy') { %>
-                                    <span class="status-badge holding">Holding</span>
-                                <% } else { %>
-                                    <span class="status-badge completed">Completed</span>
-                                <% } %>
+                            <td class="actions">
+                                <button class="delete-btn" onclick="deleteTrade('<%= trade._id %>')" title="Delete Trade">🗑️</button>
                             </td>
                         </tr>
                     <% }) %>
@@ -118,72 +135,34 @@
             </table>
         <% } %>
     </div>
+</div>
 
-    <!-- Pagination -->
-    <% if (trades.length > 20) { %>
-        <div class="pagination">
-            <button class="page-btn" onclick="changePage(-1)">← Previous</button>
-            <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages"><%= Math.ceil(trades.length / 20) %></span></span>
-            <button class="page-btn" onclick="changePage(1)">Next →</button>
+<!-- Stats Modal -->
+<div id="statsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="hideStatsModal()">&times;</span>
+        <h2>Detailed Trading Statistics</h2>
+        <div id="statsContent">
+            <div class="loading">Loading statistics...</div>
         </div>
-    <% } %>
+    </div>
+</div>
+
+<!-- Portfolio Modal -->
+<div id="portfolioModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="hidePortfolioModal()">&times;</span>
+        <h2>Current Portfolio</h2>
+        <div id="portfolioContent">
+            <div class="loading">Loading portfolio...</div>
+        </div>
+    </div>
 </div>
 
 <script>
-// Filter trades functionality
-function filterTrades() {
-    const stockFilter = document.getElementById('stockFilter').value;
-    const typeFilter = document.getElementById('tradeTypeFilter').value;
-    const timeFilter = document.getElementById('timeFilter').value;
-    const rows = document.querySelectorAll('.trade-row');
-    
-    rows.forEach(row => {
-        let show = true;
-        
-        // Stock filter
-        if (stockFilter && row.dataset.stock !== stockFilter) {
-            show = false;
-        }
-        
-        // Type filter
-        if (typeFilter && row.dataset.type !== typeFilter) {
-            show = false;
-        }
-        
-        // Time filter
-        if (timeFilter) {
-            const tradeDate = new Date(parseInt(row.dataset.date));
-            const now = new Date();
-            
-            switch(timeFilter) {
-                case 'today':
-                    if (tradeDate.toDateString() !== now.toDateString()) show = false;
-                    break;
-                case 'week':
-                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    if (tradeDate < weekAgo) show = false;
-                    break;
-                case 'month':
-                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-                    if (tradeDate < monthAgo) show = false;
-                    break;
-                case 'year':
-                    const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-                    if (tradeDate < yearAgo) show = false;
-                    break;
-            }
-        }
-        
-        row.style.display = show ? '' : 'none';
-    });
-    changePage(0); // Reset to first page after filtering
-}
-
+// Clear filters functionality
 function clearFilters() {
-    document.getElementById('stockFilter').value = '';
-    document.getElementById('tradeTypeFilter').value = '';
-    document.getElementById('timeFilter').value = '';
-    filterTrades();
+    window.location.href = '/history';
 }
 
 // Sort table functionality
@@ -192,7 +171,7 @@ let sortDirection = {};
 function sortTable(columnIndex) {
     const table = document.getElementById('tradesTable');
     const tbody = table.tBodies[0];
-    const rows = Array.from(tbody.querySelectorAll('tr:not([style*="display: none"])'));
+    const rows = Array.from(tbody.querySelectorAll('tr'));
     
     const direction = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
     sortDirection[columnIndex] = direction;
@@ -205,9 +184,9 @@ function sortTable(columnIndex) {
         if (columnIndex === 0) { // Date
             aVal = new Date(Number(a.dataset.date)).getTime();
             bVal = new Date(Number(b.dataset.date)).getTime();
-        } else if (columnIndex === 3 || columnIndex === 4 || columnIndex === 5) { // Numbers
-            aVal = parseFloat(aVal.replace(/,/g, ''));
-            bVal = parseFloat(bVal.replace(/,/g, ''));
+        } else if (columnIndex === 4 || columnIndex === 5 || columnIndex === 6) { // Numbers
+            aVal = parseFloat(aVal.replace(/[$,]/g, ''));
+            bVal = parseFloat(bVal.replace(/[$,]/g, ''));
         }
         
         if (direction === 'asc') {
@@ -218,52 +197,193 @@ function sortTable(columnIndex) {
     });
     
     rows.forEach(row => tbody.appendChild(row));
-    changePage(0); // Reset to first page after sorting
 }
 
-// Pagination functionality
-let currentPage = 1;
-const rowsPerPage = 20;
+// Delete trade functionality
+function deleteTrade(tradeId) {
+    if (confirm('Are you sure you want to delete this trade?')) {
+        fetch(`/trades/${tradeId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting trade: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting trade');
+        });
+    }
+}
 
-function changePage(direction) {
+// Modal functions
+function showStatsModal() {
+    document.getElementById('statsModal').style.display = 'block';
+    loadStats();
+}
+
+function hideStatsModal() {
+    document.getElementById('statsModal').style.display = 'none';
+}
+
+function showPortfolioModal() {
+    document.getElementById('portfolioModal').style.display = 'block';
+    loadPortfolio();
+}
+
+function hidePortfolioModal() {
+    document.getElementById('portfolioModal').style.display = 'none';
+}
+
+// Load detailed statistics
+function loadStats() {
+    fetch('/trades/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.stats;
+                document.getElementById('statsContent').innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Trades</div>
+                            <div class="stat-value">${stats.totalTrades}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Total P&L</div>
+                            <div class="stat-value ${stats.totalProfit >= 0 ? 'profit' : 'loss'}">
+                                ${stats.totalProfit >= 0 ? '+' : ''}$${stats.totalProfit}
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Win Rate</div>
+                            <div class="stat-value">${stats.winRate}%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Avg P&L per Trade</div>
+                            <div class="stat-value ${stats.avgProfit >= 0 ? 'profit' : 'loss'}">
+                                ${stats.avgProfit >= 0 ? '+' : ''}$${stats.avgProfit}
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Best Trade</div>
+                            <div class="stat-value profit">+$${stats.bestTrade}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Worst Trade</div>
+                            <div class="stat-value loss">$${stats.worstTrade}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Winning Trades</div>
+                            <div class="stat-value">${stats.winningTrades}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Losing Trades</div>
+                            <div class="stat-value">${stats.losingTrades}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('statsContent').innerHTML = '<div class="error">Error loading statistics</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('statsContent').innerHTML = '<div class="error">Error loading statistics</div>';
+        });
+}
+
+// Load portfolio
+function loadPortfolio() {
+    fetch('/trades/portfolio')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const portfolio = data.portfolio;
+                if (portfolio.length === 0) {
+                    document.getElementById('portfolioContent').innerHTML = '<div class="empty-portfolio">No current holdings</div>';
+                } else {
+                    let portfolioHtml = `
+                        <table class="portfolio-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Company</th>
+                                    <th>Quantity</th>
+                                    <th>Avg Price</th>
+                                    <th>Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    portfolio.forEach(holding => {
+                        portfolioHtml += `
+                            <tr>
+                                <td><strong>${holding.symbol}</strong></td>
+                                <td>${holding.companyName}</td>
+                                <td>${holding.quantity.toLocaleString()}</td>
+                                <td>$${holding.averagePrice}</td>
+                                <td>$${(holding.quantity * holding.averagePrice).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    portfolioHtml += '</tbody></table>';
+                    document.getElementById('portfolioContent').innerHTML = portfolioHtml;
+                }
+            } else {
+                document.getElementById('portfolioContent').innerHTML = '<div class="error">Error loading portfolio</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('portfolioContent').innerHTML = '<div class="error">Error loading portfolio</div>';
+        });
+}
+
+// Export trades to CSV
+function exportTrades() {
     const table = document.getElementById('tradesTable');
-    // Only consider visible rows for pagination
-    const allRows = Array.from(table.querySelectorAll('.trade-row'));
-    const visibleRows = allRows.filter(row => row.style.display !== 'none');
-    const totalPages = Math.ceil(visibleRows.length / rowsPerPage);
-
-    if (typeof direction === 'number') {
-        currentPage += direction;
-    } else {
-        currentPage = 1;
-    }
-    if (currentPage < 1) currentPage = 1;
-    if (currentPage > totalPages) currentPage = totalPages;
-
-    const start = (currentPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-
-    let visibleIndex = 0;
-    allRows.forEach(row => {
-        if (row.style.display === 'none') return;
-        row.style.display = (visibleIndex >= start && visibleIndex < end) ? '' : 'none';
-        visibleIndex++;
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '';
+    
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        const rowData = [];
+        for (let i = 0; i < cells.length - 1; i++) { // Skip the last column (Actions)
+            rowData.push(cells[i].textContent.trim());
+        }
+        csvContent += rowData.join(',') + '\n';
     });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'trade_history.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
 
-    document.getElementById('currentPage').textContent = currentPage;
-
-    // Update button states
-    const prevBtn = document.querySelector('.page-btn:first-child');
-    const nextBtn = document.querySelector('.page-btn:last-child');
-    if (prevBtn && nextBtn) {
-        prevBtn.disabled = currentPage === 1;
-        nextBtn.disabled = currentPage === totalPages;
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const statsModal = document.getElementById('statsModal');
+    const portfolioModal = document.getElementById('portfolioModal');
+    
+    if (event.target === statsModal) {
+        hideStatsModal();
+    }
+    if (event.target === portfolioModal) {
+        hidePortfolioModal();
     }
 }
-// Call pagination on page load
-window.onload = function() {
-    changePage(0);
-};
 </script>
 
 <%- include('partials/footer') %>

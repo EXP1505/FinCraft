@@ -188,19 +188,20 @@ async function loadWatchlistPrices() {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        const watchlist = await response.json();
-        console.log('📋 Watchlist loaded:', watchlist);
-        
-        if (!Array.isArray(watchlist) || watchlist.length === 0) {
-            watchlistContainer.innerHTML = `
-                <div class="text-center text-muted py-4">
-                    <i class="fas fa-star fa-2x mb-3"></i>
-                    <p>No stocks in your watchlist yet</p>
-                    <a href="/stocks" class="btn btn-primary btn-sm">Add Stocks</a>
-                </div>
-            `;
-            return;
-        }
+            const result = await response.json();
+            const watchlist = result.data || [];
+            console.log('📋 Watchlist loaded:', watchlist);
+
+            if (!Array.isArray(watchlist) || watchlist.length === 0) {
+                watchlistContainer.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-star fa-2x mb-3"></i>
+                        <p>No stocks in your watchlist yet</p>
+                        <a href="/stocks" class="btn btn-primary btn-sm">Add Stocks</a>
+                    </div>
+                `;
+                return;
+            }
         
         // Show loading state
         watchlistContainer.innerHTML = `
