@@ -8,7 +8,7 @@ const router = express.Router();
 // GET /dashboard
 router.get('/', async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.session.user.id || req.session.user._id; 
 
     // Get performance metrics for different periods
     const [allTime, yearData, monthData, weekData, todayData] = await Promise.all([
@@ -74,7 +74,7 @@ const analyticsData = await analytics.calculatePerformanceMetrics(userId, 'all')
 // GET /dashboard/api/performance/:period
 router.get('/api/performance/:period', async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.session.user.id|| req.session.user._id; // Ensure user ID is correctly retrieved
     const period = req.params.period;
 
     const metrics = await analytics.calculatePerformanceMetrics(userId, period);
@@ -96,7 +96,7 @@ router.get('/api/performance/:period', async (req, res) => {
 // POST /dashboard/watchlist/add
 router.post('/watchlist/add', async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.session.user._id;
     const { symbol, name } = req.body;
 
     if (!symbol || !name) {
@@ -143,7 +143,7 @@ router.post('/watchlist/add', async (req, res) => {
 // DELETE /dashboard/watchlist/remove/:symbol
 router.delete('/watchlist/remove/:symbol', async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.session.user._id;
     const symbol = req.params.symbol.toUpperCase();
 
     const user = await User.findById(userId);

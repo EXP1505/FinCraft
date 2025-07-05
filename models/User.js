@@ -17,6 +17,15 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  phone:{
+    type: String,
+    required: true,
+    minlength: 10,
+  },
+  bio:{
+    type: String,
+    trim: true,
+  },
   password: {
     type: String,
     required: true,
@@ -43,7 +52,7 @@ const userSchema = new mongoose.Schema({
     },
     name: {
       type: String,
-      // required: true
+      required: true
     },
     addedAt: {
       type: Date,

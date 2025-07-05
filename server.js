@@ -41,7 +41,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use('/api', apiRoutes);
 
 // Session configuration
 app.use(session({
@@ -57,6 +56,7 @@ app.use(session({
   }
 }));
 
+app.use('/api', apiRoutes);
 // Make user available in all templates
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
@@ -111,6 +111,33 @@ app.get('/search', authMiddleware.requireAuth, (req, res) => {
 
 app.get('/stock/:symbol', (req, res) => {
   res.redirect(`/stocks/${req.params.symbol}`);
+});
+const Trade = require('./models/Trade'); // Add at the top if not already
+
+app.get('/history', authMiddleware.requireAuth, async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.redirect('/login');
+    }
+    const trades = await Trade.find({ userId: req.session.user._id }).sort({ timestamp: -1 });
+     // Calculate totalPnL and winRate for summary
+    const totalPnL = trades.reduce((sum, t) => sum + (t.profitLoss || 0), 0);
+    const winRate = trades.length > 0
+      ? ((trades.filter(t => (t.profitLoss || 0) > 0).length / trades.length) * 100).toFixed(1)
+      : 0;
+    // Get unique stocks for filter dropdown
+    const uniqueStocks = [...new Set(trades.map(t => t.symbol))];
+
+    res.render('history', {
+      title: 'Trade History',
+      trades,
+      totalPnL,
+      winRate,
+      uniqueStocks
+    });
+  } catch (error) {
+    res.status(500).render('error', { message: 'Error loading trade history' });
+  }
 });
 // Error handling middleware
 app.use((err, req, res, next) => {
