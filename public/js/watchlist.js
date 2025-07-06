@@ -77,7 +77,7 @@ async function addToWatchlist(symbol, name, button) {
     console.log('➕ Adding to watchlist:', { symbol, name });
     
     try {
-        const response = await fetch('/api/watchlist/add', {
+        const response = await fetch(`/api/watchlist/${symbol}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -116,8 +116,8 @@ async function removeFromWatchlist(symbol, button) {
     console.log('➖ Removing from watchlist:', symbol);
     
     try {
-        const response = await fetch(`/api/watchlist/remove`, {
-            method: 'POST',
+        const response = await fetch(`/api/watchlist/${symbol}`, {
+            method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             },

@@ -1022,12 +1022,6 @@ body {
     }
 }
 
-.chart-section {
-    min-height: 300px;
-}
-#stockChart {
-    min-height: 200px;
-}
 
 /* Extra Large Profile Image Version */
 .profile-image {

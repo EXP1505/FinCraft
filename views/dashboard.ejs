@@ -1,6 +1,6 @@
 <%- include('partials/header', { title: 'Dashboard' }) %>
 <%- include('partials/navbar') %>
-
+<link rel="stylesheet" href="/css/dashboard.css">
 <div class="container">
     <!-- Search Section -->
     <div class="search-section">
@@ -133,7 +133,9 @@
                         <a href="/stock/<%= stock.symbol %>">
                             <div class="stock-symbol"><%= stock.symbol %></div>
                             <div class="stock-name"><%= stock.name %></div>
-                            <div class="stock-price">$<%= stock.price ? stock.price.toFixed(2) : 'Loading...' %></div>
+                            <div class="stock-price">
+                                $<%= (typeof stock.currentPrice === 'number' && !isNaN(stock.currentPrice)) ? stock.currentPrice.toFixed(2) : 'Loading...' %>
+                            </div>
                         </a>
                     </div>
                 <% }) %>

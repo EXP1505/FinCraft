@@ -74,9 +74,33 @@ router.get('/', async (req, res) => {
     const stocks = await Promise.all(stockPromises);
 
     // Get user's watchlist
-    const userId = req.session.user.id;
+    const userId = req.session.user.id || req.session.user._id;
     const user = await User.findById(userId).select('watchlist');
-    const watchlist = user.watchlist || [];
+    const watchlistRaw = user.watchlist || [];
+    const axios = require('axios');
+    const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
+    const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
+    const watchlist = await Promise.all(watchlistRaw.map(async (item) => {
+      try {
+        const quote = await finnhubRequest('/quote', { symbol: item.symbol });
+        return {
+          symbol: item.symbol,
+          name: item.name || item.symbol,
+          price: quote.c || 0,
+          change: quote.d || 0,
+          changePercent: quote.dp || 0
+        };
+      } catch (error) {
+        console.error(`Error fetching watchlist data for ${item.symbol}:`, error.message);
+        return {
+          symbol: item.symbol,
+          name: item.name || item.symbol,
+          price: 0,
+          change: 0,
+          changePercent: 0
+        };
+      }
+    }));
 
     res.render('stocks', {
       title: 'Stocks - StockSage',
