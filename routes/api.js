@@ -341,7 +341,7 @@ router.get('/news/:symbol', async (req, res) => {
 });
 
 // Add stock to watchlist
-router.post('/watchlist/add', async (req, res) => {
+router.post('/watchlist/:symbol', async (req, res) => {
   console.log('📥 Add to watchlist request:', req.body);
   console.log('👤 Session user:', req.session.user);
   
@@ -362,7 +362,8 @@ router.post('/watchlist/add', async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.session.user._id);
+    const UserId= req.session.user._id|| req.session.user.id;
+    const user = await User.findById(UserId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -404,7 +405,7 @@ router.post('/watchlist/add', async (req, res) => {
 });
 
 // Remove stock from watchlist
-router.post('/watchlist/remove', async (req, res) => {
+router.delete('/watchlist/:symbol', async (req, res) => {
   console.log('📥 Remove from watchlist request:', req.body);
   
   try {
@@ -424,7 +425,7 @@ router.post('/watchlist/remove', async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.session.user._id);
+    const user = await User.findById(UserId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -470,7 +471,7 @@ router.get('/watchlist', async (req, res) => {
       });
     }
     
-    const user = await User.findById(req.session.user._id);
+    const user = await User.findById(UserId);
     const watchlistData = [];
     
     for (const item of user.watchlist) {

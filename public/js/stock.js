@@ -551,7 +551,7 @@ async function toggleWatchlist() {
     try {
         const method = isInWatchlist ? 'DELETE' : 'POST';
         const response = await fetch(`/api/watchlist/${currentSymbol}`, {
-            method: method
+            method
         });
         
         if (response.ok) {

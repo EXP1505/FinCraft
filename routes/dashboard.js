@@ -27,7 +27,35 @@ router.get('/', async (req, res) => {
 
     // Get user's watchlist
     const user = await User.findById(userId).select('watchlist');
-    const watchlist = user.watchlist || [];
+    const watchlistRaw = user.watchlist || [];
+
+    const axios = require('axios');
+    const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
+    const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
+
+    const watchlist = await Promise.all(
+      watchlistRaw.map(async (item) => {
+        let currentPrice = null, change = null, changePercent = null;
+        try {
+          const response = await axios.get(`${FINNHUB_BASE_URL}/quote`, {
+            params: { symbol: item.symbol, token: FINNHUB_API_KEY }
+          });
+          currentPrice = response.data.c;
+          change = response.data.d;
+          changePercent = response.data.dp;
+        } catch (err) {
+          // leave as null if error
+        }
+        return {
+          symbol: item.symbol,
+          name: item.name,
+          currentPrice,
+          change,
+          changePercent,
+          addedAt: item.addedAt
+        };
+      })
+    );
 
     // Get monthly performance for chart
     const monthlyPerformance = await analytics.getMonthlyPerformance(userId, 6);
