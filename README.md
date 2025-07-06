@@ -38,7 +38,7 @@ Get a quick overview of your financial performance:
       * **Trade Logging:** Automatically log trade details including price, timestamp, and calculated profit/loss.
       * **Known Issue:** After making a trade from the individual stock page, the dashboard may display an error. This is an ongoing issue being investigated.
   * **Recommendations:** Get general recommendations (BUY/HOLD/SELL) based on market data.
-    ![Image](https://github.com/user-attachments/assets/22330117-6376-417c-bac3-b9772c708167)
+    <img width="1622" height="888" alt="Image" src="https://github.com/user-attachments/assets/22b966fb-c4ff-415a-a9d0-46cb54bb654c" />
 
 ### Trade History (`/history`)
 
