@@ -407,6 +407,7 @@ router.post('/watchlist/:symbol', async (req, res) => {
 // Remove stock from watchlist
 router.delete('/watchlist/:symbol', async (req, res) => {
   console.log('📥 Remove from watchlist request:', req.body);
+  console.log('👤 Session user:', req.session.user);
   
   try {
     if (!req.session.user) {
@@ -416,7 +417,7 @@ router.delete('/watchlist/:symbol', async (req, res) => {
       });
     }
 
-    const { symbol } = req.body;
+    const symbol = req.params.symbol || req.body.symbol;
     
     if (!symbol) {
       return res.status(400).json({
@@ -424,7 +425,7 @@ router.delete('/watchlist/:symbol', async (req, res) => {
         message: 'Stock symbol is required'
       });
     }
-
+    const UserId = req.session.user._id || req.session.user.id;
     const user = await User.findById(UserId);
     if (!user) {
       return res.status(404).json({

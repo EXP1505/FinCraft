@@ -66,7 +66,7 @@
                         <a href="/stock/<%= stock.symbol %>">
                             <div class="stock-header">
                                 <h3><%= stock.symbol %></h3>
-                                <button class="watchlist-btn active" data-symbol="<%= stock.symbol %>">
+                                <button class="watchlist-btn in-watchlist" data-symbol="<%= stock.symbol %>">
                                     <i class="fas fa-star"></i>
                                 </button>
                             </div>
@@ -163,37 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error(`Error loading ${symbol}:`, error);
             });
-    });
-});
-
-// Watchlist functionality
-document.querySelectorAll('.watchlist-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const symbol = this.dataset.symbol;
-        const isActive = this.classList.contains('active');
-        
-        fetch('/api/watchlist', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                symbol: symbol,
-                action: isActive ? 'remove' : 'add'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                this.classList.toggle('active');
-            }
-        })
-        .catch(error => {
-            console.error('Error updating watchlist:', error);
-        });
     });
 });
 </script>

@@ -118,11 +118,7 @@ async function removeFromWatchlist(symbol, button) {
     try {
         const response = await fetch(`/api/watchlist/${symbol}`, {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ symbol })
-        });
+            });
         
         const data = await response.json();
         console.log('📡 Remove response:', data);
@@ -132,7 +128,10 @@ async function removeFromWatchlist(symbol, button) {
             button.classList.remove('in-watchlist');
             button.innerHTML = '<i class="far fa-star"></i>';
             button.title = 'Add to watchlist';
-            
+            const stockCard = button.closest('.stock-card');
+            if (stockCard && stockCard.parentElement.classList.contains('stocks-grid')) {
+                stockCard.remove();
+            }
             showToast(`${symbol} removed from watchlist`, 'success');
         } else {
             throw new Error(data.message || 'Failed to remove from watchlist');
