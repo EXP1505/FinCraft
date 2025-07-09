@@ -73,7 +73,7 @@ Get a quick overview of your financial performance:
 1.  **Clone the repository:**
 
     ```bash
-    git clone <your-repository-url>
+    git clone <repository-url>
     cd StockSage
     ```
 
