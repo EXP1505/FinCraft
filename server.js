@@ -67,7 +67,7 @@ app.use((req, res, next) => {
     console.log('🔍 Session Debug:', {
         sessionID: req.sessionID,
         hasUser: !!req.session.user,
-        userID: req.session.user._id
+        userID: req.session.user ? (req.session.user._id || req.session.user.id) : null,
     });
     next();
 });
