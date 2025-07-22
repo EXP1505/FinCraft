@@ -59,7 +59,6 @@ Get a quick overview of your financial performance:
 
   * **Register Page Profession Field:** The registration page currently lacks fields to specify a user's profession (e.g., "broker" or "normal trader"). This functionality will be added in a future update.
   * **Dashboard Error After Trade:** When a trade is made from the individual stock page, the dashboard often responds with an error. I am working to fix this interaction.
-  * **Watchlist Functionality:** Users are currently unable to add stocks to their watchlist. This feature is being debugged.
 
 ## 🚀 Getting Started
 
@@ -74,7 +73,7 @@ Get a quick overview of your financial performance:
 1.  **Clone the repository:**
 
     ```bash
-    git clone <your-repository-url>
+    git clone <repository-url>
     cd StockSage
     ```
 
