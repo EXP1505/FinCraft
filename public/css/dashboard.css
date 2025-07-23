@@ -140,7 +140,7 @@ body {
     margin-bottom: 40px;
 }
 
-.stocks-grid {
+.moving-stocks .stocks-grid {
     display: inline-block; 
     animation: scrollStocks 30s linear infinite; 
 }
