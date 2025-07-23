@@ -93,7 +93,7 @@
 .price {
     font-size: 2rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #000000;
 }
 
 .change {
@@ -102,7 +102,7 @@
 }
 
 .change.positive {
-    color: #10b981;
+    color: #078e61;
     text-shadow: 0 0 0.6rem rgba(16, 185, 129, 0.3);
 }
 
@@ -124,12 +124,12 @@
 }
 
 .price-item .label {
-    color: #93c5fd;
+    color: #002247;
     font-size: 0.9rem;
 }
 
 .price-item .value {
-    color: #ffffff;
+    color: #020231;
     font-size: 0.9rem;
     font-weight: 600;
 }
@@ -188,7 +188,7 @@
 }
 
 .trading-section h2 {
-    color: #ffffff;
+    color: #000000;
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -216,7 +216,7 @@
 }
 
 .trade-form-container h3 {
-    color: #60a5fa;
+    color: #1d2937;
     font-size: 1.2rem;
     margin-bottom: 1rem;
 }
@@ -234,7 +234,7 @@
 }
 
 .form-group label {
-    color: #93c5fd;
+    color: #085dbd;
     font-size: 0.9rem;
 }
 
@@ -242,13 +242,13 @@
     padding: 0.8rem;
     border: none;
     background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    color: #000000;
     border-radius: 0.4rem;
     font-size: 0.9rem;
 }
 
 .form-group input::placeholder {
-    color: #6b7280;
+    color: #000000;
 }
 
 .trade-summary {
@@ -260,7 +260,7 @@
 .summary-item {
     display: flex;
     justify-content: space-between;
-    color: #d1d5db;
+    color: #0d3878;
     font-size: 0.9rem;
 }
 

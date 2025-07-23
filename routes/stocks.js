@@ -38,7 +38,7 @@ const finnhubRequest = async (endpoint, params = {}) => {
 // GET /stocks - Main stocks page
 router.get('/', async (req, res) => {
   try {
-    // Get popular stocks (you can customize this list)
+    // Get popular stocks
     const popularStocks = [
       'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 
       'META', 'NVDA', 'NFLX', 'BABA', 'V'

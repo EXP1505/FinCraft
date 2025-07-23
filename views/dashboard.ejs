@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="/css/dashboard.css">
 <div class="container">
     <!-- Search Section -->
-    <div class="search-section">
+    <section class="search-section">
         <h2>Search Stocks</h2>
         <form action="/search" method="GET" class="search-form">
             <div class="search-input-group">
@@ -13,10 +13,37 @@
                 </button>
             </div>
         </form>
-    </div>
+    </section>
+    <section class="moving-stocks">
+        <h2>Popular Stocks</h2>
+        <div class="stocks-grid">
+            <% if (popularStocks && popularStocks.length > 0) { %>
+                <% popularStocks.forEach(stock => { %>
+                <div class="stock-card">
+                    <a href="/stock/<%= stock.symbol %>">
+                        <div class="stock-header">
+                            <h5><%= stock.symbol %></h5>
+                        </div>
+                        <div class="stock-info">
+                            <div class="stock-info">
+                                <div class="stock-price">
+                                    $<%= stock.price ? stock.price.toFixed(2) : 'N/A' %>
+                                </div>
+                                <div class="stock-change <%= stock.change >= 0 ? 'positive' : 'negative' %>">
+                                    <%= stock.change >= 0 ? '+' : '' %><%= stock.change.toFixed(2) %>
+                                    (<%= stock.changePercent.toFixed(2) %>%)
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <% }) %>
+                <%}%>
+            </div>
+    </section>
 
-    <!-- Analytics Overview -->
-    <div class="analytics-overview">
+    <!-- Portfolio Overview -->
+    <section class="analytics-overview">
         <h2>Portfolio Overview</h2>
         <div class="stats-grid">
             <div class="stat-card">
@@ -30,7 +57,6 @@
                     </p>
                 </div>
             </div>
-            
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-alt"></i>
@@ -42,7 +68,6 @@
                     </p>
                 </div>
             </div>
-            
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-calendar"></i>
@@ -54,7 +79,6 @@
                     </p>
                 </div>
             </div>
-            
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-week"></i>
@@ -66,7 +90,6 @@
                     </p>
                 </div>
             </div>
-            
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-clock"></i>
@@ -79,49 +102,10 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Recent Trades -->
-    <div class="recent-section">
-        <div class="section-header">
-            <h2>Recent Trades</h2>
-            <a href="/history" class="view-all-btn">View All</a>
-        </div>
-        <div class="trades-list">
-            <% if (recentTrades.length > 0) { %>
-                <% recentTrades.forEach(trade => { %>
-                    <div class="trade-item">
-                        <div class="trade-symbol">
-                            <strong><%= trade.symbol %></strong>
-                        </div>
-                        <div class="trade-details">
-                            <span class="trade-type <%= trade.type.toLowerCase() %>">
-                                <%= trade.type.toUpperCase() %>
-                            </span>
-                            <span class="trade-quantity"><%= trade.quantity %> shares</span>
-                            <span class="trade-price">$<%= trade.price.toFixed(2) %></span>
-                        </div>
-                        <div class="trade-result">
-                            <span class="trade-profit <%= trade.profit >= 0 ? 'profit' : 'loss' %>">
-                                $<%= trade.profit.toFixed(2) %>
-                            </span>
-                            <span class="trade-date">
-                                <%= new Date(trade.createdAt).toLocaleDateString() %>
-                            </span>
-                        </div>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <div class="no-trades">
-                    <i class="fas fa-chart-bar"></i>
-                    <p>No trades yet. Start by searching for stocks!</p>
-                </div>
-            <% } %>
-        </div>
-    </div>
+    </section>
 
     <!-- Watchlist -->
-    <div class="watchlist-section">
+    <section class="watchlist-section">
         <div class="section-header">
             <h2>My Watchlist</h2>
             <a href="/stocks" class="view-all-btn">Browse Stocks</a>
@@ -129,15 +113,15 @@
         <div class="watchlist-grid">
             <% if (watchlist.length > 0) { %>
                 <% watchlist.forEach(stock => { %>
-                    <div class="watchlist-item">
-                        <a href="/stock/<%= stock.symbol %>">
-                            <div class="stock-symbol"><%= stock.symbol %></div>
-                            <div class="stock-name"><%= stock.name %></div>
-                            <div class="stock-price">
-                                $<%= (typeof stock.currentPrice === 'number' && !isNaN(stock.currentPrice)) ? stock.currentPrice.toFixed(2) : 'Loading...' %>
-                            </div>
-                        </a>
-                    </div>
+                <div class="watchlist-item">
+                    <a href="/stock/<%= stock.symbol %>">
+                        <div class="stock-symbol"><%= stock.symbol %></div>
+                        <div class="stock-name"><%= stock.name %></div>
+                        <div class="stock-price">
+                            $<%= (typeof stock.currentPrice === 'number' && !isNaN(stock.currentPrice)) ? stock.currentPrice.toFixed(2) : 'Loading...' %>
+                        </div>
+                    </a>
+                </div>
                 <% }) %>
             <% } else { %>
                 <div class="no-watchlist">
@@ -146,7 +130,6 @@
                 </div>
             <% } %>
         </div>
-    </div>
+    </section>
 </div>
-
 <%- include('partials/footer') %>

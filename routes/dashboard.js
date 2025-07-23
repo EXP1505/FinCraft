@@ -33,6 +33,33 @@ router.get('/', async (req, res) => {
     const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
     const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 
+    const popularStocksList = [
+      'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 
+      'META', 'NVDA', 'NFLX', 'BABA', 'V'
+    ];
+
+    const popularStocks = await Promise.all(popularStocksList.map(async (symbol) => {
+      try {
+        const response = await axios.get(
+          `${FINNHUB_BASE_URL}/quote`,
+          { params: { symbol, token: FINNHUB_API_KEY } }
+        );
+        return {
+          symbol,
+          price: response.data.c || 0,
+          change: response.data.d || 0,
+          changePercent: response.data.dp || 0
+        };
+      } catch (error) {
+        return {
+          symbol,
+          price: 0,
+          change: 0,
+          changePercent: 0
+        };
+      }
+    }));
+
     const watchlist = await Promise.all(
       watchlistRaw.map(async (item) => {
         let currentPrice = null, change = null, changePercent = null;
@@ -74,6 +101,7 @@ const analyticsData = await analytics.calculatePerformanceMetrics(userId, 'all')
     week: weekData,          // 1 week stats object
     today: todayData,        // today stats object
     recentTrades,
+    popularStocks,
     watchlist,
     monthlyPerformance,
     topPerformers,
