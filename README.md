@@ -1,4 +1,4 @@
-# FinCraft - Real-Time Stock Tracker & Trade Analyzer
+# FinCraft - Real-Time Stock Tracker & Trade Analyzer (Underwork, just changed the name)
 
 StockSage is a full-stack finance web application that empowers users to track real-time stock prices, simulate trades, analyze profits, and connect with financial advisors. Built with CSS, JavaScript, EJS, Node.js, Express, and MongoDB, it provides a comprehensive platform for managing your simulated investment portfolio.
 
