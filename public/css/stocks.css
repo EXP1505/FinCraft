@@ -34,65 +34,13 @@
     color: #93c5fd;
     font-size: 1rem;
 }
-
-/* Search Section */
-.search-section {
-    margin-bottom: 2rem;
-}
-
-.search-form {
-    display: flex;
-    justify-content: center;
-}
-
-.search-input-group {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    /* max-width: 40rem; Proportional for FHD */
-    background: rgba(30, 58, 138, 0.2);
-    border-radius: 0.6rem;
-    overflow: hidden;
-    border: 1px solid rgba(96, 165, 250, 0.2);
-    backdrop-filter: blur(10px);
-}
-
-.search-input-group input {
-    flex: 1;
-    padding: 0.8rem 1.2rem;
-    border: none;
-    background: transparent;
-    color: #ffffff;
-    font-size: 0.9rem;
-}
-
-.search-input-group input::placeholder {
-    color: #6b7280;
-}
-
-.search-input-group button {
-    padding: 0.8rem 1.2rem;
-    background: linear-gradient(135deg, #e2cc24, #f1db33);
-    color: white;
-    border: none;
-    border-radius: 0 0.6rem 0.6rem 0;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.search-input-group button:hover {
-    background: linear-gradient(135deg, #1e40af, #3730a3);
-    transform: translateY(-0.1rem);
-}
-
 /* Stocks Section */
 .stocks-section {
     margin-bottom: 3rem;
 }
 
 .stocks-section h2 {
-    color: #ffffff;
+    color: #000000;
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -102,14 +50,14 @@
 /* Stocks Grid */
 .stocks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); /* Proportional card width */
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); /* Proportional card width */
     gap: 1rem;
 }
 
 /* Stock Card */
 .stock-card {
     position: relative; /* For glassy line effect */
-    background: rgba(30, 58, 138, 0.2);
+    background: rgba(50, 94, 214, 0.414);
     border-radius: 0.6rem;
     border: 1px solid rgba(96, 165, 250, 0.2);
     backdrop-filter: blur(10px);
@@ -165,7 +113,7 @@
 }
 
 .stock-header h3 {
-    color: #60a5fa;
+    color: #0000008d;
     font-size: 1.3rem;
     font-weight: 700;
 }
@@ -173,7 +121,7 @@
 .watchlist-btn {
     background: none;
     border: none;
-    color: #93c5fd;
+    color: #edba00;
     font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -195,7 +143,7 @@
 }
 
 .stock-name {
-    color: #d1d5db;
+    color: #e2e3e4;
     font-size: 0.85rem;
 }
 
@@ -226,7 +174,7 @@
 }
 
 .watchlist-section h2 {
-    color: #ffffff;
+    color: #000000;
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -239,7 +187,7 @@
 }
 
 .categories-section h2 {
-    color: #ffffff;
+    color: #000000;
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -267,17 +215,10 @@
 }
 
 .category-card h3 {
-    color: #60a5fa;
+    color: #000000;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
 }
-
-.category-card p {
-    color: #d1d5db;
-    font-size: 0.85rem;
-    margin-bottom: 0.8rem;
-}
-
 .category-stocks {
     display: flex;
     flex-wrap: wrap;
@@ -285,7 +226,7 @@
 }
 
 .category-stocks a {
-    color: #93c5fd;
+    color: #0d05a3;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.8rem;

@@ -1,6 +1,6 @@
-# StockSage - Real-Time Stock Tracker & Trade Analyzer
+# Fincraft - Real-Time Stock Tracker & Trade Analyzer
 
-StockSage is a full-stack finance web application that empowers users to track real-time stock prices, simulate trades, analyze profits, and connect with financial advisors. Built with CSS, JavaScript, EJS, Node.js, Express, and MongoDB, it provides a comprehensive platform for managing your simulated investment portfolio.
+Fincraft is a full-stack finance web application that empowers users to track real-time stock prices, simulate trades, analyze profits, and connect with financial advisors. Built with CSS, JavaScript, EJS, Node.js, Express, and MongoDB, it provides a comprehensive platform for managing your simulated investment portfolio.
 
 ## ✨ Features
 
@@ -74,7 +74,7 @@ Get a quick overview of your financial performance:
 
     ```bash
     git clone <repository-url>
-    cd StockSage
+    cd Fincraft
     ```
 
 2.  **Install dependencies:**
@@ -92,7 +92,7 @@ Get a quick overview of your financial performance:
     SESSION_SECRET=a_strong_secret_key_for_sessions
     ```
 
-      * Replace `your_mongodb_connection_string` with your MongoDB URI (e.g., `mongodb://localhost:27017/stocksage`).
+      * Replace `your_mongodb_connection_string` with your MongoDB URI (e.g., `mongodb://localhost:27017/Fincraft`).
       * Replace `your_finnhub_api_key` with your actual API key from Finnhub.
       * Replace `a_strong_secret_key_for_sessions` with a long, random string for session encryption.
 
@@ -121,7 +121,7 @@ Get a quick overview of your financial performance:
 
 ## 🌐 API for Stock Data
 
-StockSage utilizes the Finnhub API for real-time stock prices, historical data, and indicators.
+Fincraft utilizes the Finnhub API for real-time stock prices, historical data, and indicators.
 
 ### ✅ Finnhub API (Recommended)
 
@@ -134,7 +134,7 @@ StockSage utilizes the Finnhub API for real-time stock prices, historical data, 
 
 ## 🤝 Contributing
 
-Contributions are welcome\! If you'd like to improve StockSage, please follow these steps:
+Contributions are welcome\! If you'd like to improve Fincraft, please follow these steps:
 
 1.  Fork the repository.
 2.  Create a new branch (`git checkout -b feature/your-feature-name`).

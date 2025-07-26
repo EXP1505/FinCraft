@@ -103,7 +103,7 @@ router.get('/', async (req, res) => {
     }));
 
     res.render('stocks', {
-      title: 'Stocks - StockSage',
+      title: 'Stocks - Fincraft',
       stocks,
       watchlist,
       searchQuery: ''
@@ -112,7 +112,7 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Stocks page error:', error);
     res.render('error', {
-      title: 'Error - StockSage',
+      title: 'Error - Fincraft',
       message: 'Unable to load stocks data',
       error: {}
     });
@@ -133,7 +133,7 @@ router.get('/search', async (req, res) => {
     
     if (!searchResults.result || searchResults.result.length === 0) {
       return res.render('stocks', {
-        title: `Search Results: ${query} - StockSage`,
+        title: `Search Results: ${query} - Fincraft`,
         stocks: [],
         watchlist: [],
         searchQuery: query
@@ -174,7 +174,7 @@ router.get('/search', async (req, res) => {
     const watchlist = user.watchlist || [];
 
     res.render('stocks', {
-      title: `Search Results: ${query} - StockSage`,
+      title: `Search Results: ${query} - Fincraft`,
       stocks,
       watchlist,
       searchQuery: query
@@ -183,7 +183,7 @@ router.get('/search', async (req, res) => {
   } catch (error) {
     console.error('Stock search error:', error);
     res.render('error', {
-      title: 'Error - StockSage',
+      title: 'Error - Fincraft',
       message: 'Unable to search stocks',
       error: {}
     });
@@ -284,7 +284,7 @@ router.get('/:symbol', async (req, res) => {
     };
 
     res.render('stock', {
-      title: `${symbol} - ${profileData.name} - StockSage`,
+      title: `${symbol} - ${profileData.name} - Fincraft`,
       stock: stockData,
       recommendation: recommendationData,
       position: {
@@ -301,7 +301,7 @@ router.get('/:symbol', async (req, res) => {
   } catch (error) {
     console.error('Individual stock error:', error);
     res.render('error', {
-      title: 'Error - StockSage',
+      title: 'Error - Fincraft',
       message: 'Unable to load stock information',
       error: process.env.NODE_ENV === 'development' ? error : {}
     });

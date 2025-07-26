@@ -3,17 +3,6 @@
 <link rel="stylesheet" href="/css/dashboard.css">
 <div class="container">
     <!-- Search Section -->
-    <section class="search-section">
-        <h2>Search Stocks</h2>
-        <form action="/search" method="GET" class="search-form">
-            <div class="search-input-group">
-                <input type="text" name="symbol" placeholder="Enter stock symbol (e.g., AAPL, GOOGL)" required>
-                <button type="submit">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </section>
     <section class="moving-stocks">
         <h2>Popular Stocks</h2>
         <div class="stocks-grid">
@@ -22,7 +11,7 @@
                 <div class="stock-card">
                     <a href="/stock/<%= stock.symbol %>">
                         <div class="stock-header">
-                            <h5><%= stock.symbol %></h5>
+                            <h3><%= stock.symbol %></h3>
                         </div>
                         <div class="stock-info">
                             <div class="stock-info">
@@ -38,8 +27,27 @@
                     </a>
                 </div>
                 <% }) %>
-                <%}%>
-            </div>
+                <% popularStocks.forEach(stock => { %>  <div class="stock-card">
+                    <a href="/stock/<%= stock.symbol %>">
+                        <div class="stock-header">
+                            <h3><%= stock.symbol %></h3>
+                        </div>
+                        <div class="stock-info">
+                            <div class="stock-info">
+                                <div class="stock-price">
+                                    $<%= stock.price ? stock.price.toFixed(2) : 'N/A' %>
+                                </div>
+                                <div class="stock-change <%= typeof stock.change === 'number' && !isNaN(stock.change) ? (stock.change >= 0 ? 'positive' : 'negative') : '' %>">
+                                    <%= typeof stock.change === 'number' && !isNaN(stock.change) ? (stock.change >= 0 ? '+' : '') + stock.change.toFixed(2) : 'N/A' %>
+                                    (<%= typeof stock.changePercent === 'number' && !isNaN(stock.changePercent) ? stock.changePercent.toFixed(2) + '%' : 'N/A' %>)
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <% }) %>
+            <%}%>
+        </div>
     </section>
 
     <!-- Portfolio Overview -->
@@ -119,6 +127,10 @@
                         <div class="stock-name"><%= stock.name %></div>
                         <div class="stock-price">
                             $<%= (typeof stock.currentPrice === 'number' && !isNaN(stock.currentPrice)) ? stock.currentPrice.toFixed(2) : 'Loading...' %>
+                        </div>
+                        <div class="stock-change <%= typeof stock.change === 'number' && !isNaN(stock.change) ? (stock.change >= 0 ? 'positive' : 'negative') : '' %>">
+                            <%= typeof stock.change === 'number' && !isNaN(stock.change) ? (stock.change >= 0 ? '+' : '') + stock.change.toFixed(2) : 'N/A' %>
+                            (<%= typeof stock.changePercent === 'number' && !isNaN(stock.changePercent) ? stock.changePercent.toFixed(2) + '%' : 'N/A' %>)
                         </div>
                     </a>
                 </div>

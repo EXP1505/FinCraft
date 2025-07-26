@@ -151,7 +151,7 @@ body {
 
 .moving-stocks .stocks-grid {
     display: inline-block; 
-    animation: scrollStocks 10s linear infinite; 
+    animation: scrollStocks 20s linear infinite; 
 }
 
 .stock-card {

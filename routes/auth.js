@@ -8,7 +8,7 @@ const router = express.Router();
 // GET /auth/login
 router.get('/login', authMiddleware.redirectIfAuthenticated, (req, res) => {
   res.render('auth/login', {
-    title: 'Login - StockSage',
+    title: 'Login - Fincraft',
     error: null,
     success: null
   });
@@ -24,7 +24,7 @@ router.post('/login', authMiddleware.redirectIfAuthenticated, async (req, res) =
     // Validate input
     if (!email || !password) {
       return res.render('auth/login', {
-        title: 'Login - StockSage',
+        title: 'Login - Fincraft',
         error: 'Please provide both email and password',
         success: null
       });
@@ -34,7 +34,7 @@ router.post('/login', authMiddleware.redirectIfAuthenticated, async (req, res) =
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.render('auth/login', {
-        title: 'Login - StockSage',
+        title: 'Login - Fincraft',
         error: 'Invalid email or password',
         success: null
       });
@@ -44,7 +44,7 @@ router.post('/login', authMiddleware.redirectIfAuthenticated, async (req, res) =
     const isValidPassword = await user.comparePassword(password);
     if (!isValidPassword) {
       return res.render('auth/login', {
-        title: 'Login - StockSage',
+        title: 'Login - Fincraft',
         error: 'Invalid email or password',
         success: null
       });
@@ -70,7 +70,7 @@ router.post('/login', authMiddleware.redirectIfAuthenticated, async (req, res) =
   } catch (error) {
     console.error('Login error:', error);
     res.render('auth/login', {
-      title: 'Login - StockSage',
+      title: 'Login - Fincraft',
       error: 'An error occurred. Please try again.',
       success: null
     });
@@ -80,7 +80,7 @@ router.post('/login', authMiddleware.redirectIfAuthenticated, async (req, res) =
 // GET /auth/register
 router.get('/register', authMiddleware.redirectIfAuthenticated, (req, res) => {
   res.render('auth/register', {
-    title: 'Register - StockSage',
+    title: 'Register - Fincraft',
     error: null,
     success: null,
     formData: {}
@@ -117,7 +117,7 @@ router.post('/register', authMiddleware.redirectIfAuthenticated, async (req, res
 
     if (errors.length > 0) {
       return res.render('auth/register', {
-        title: 'Register - StockSage',
+        title: 'Register - Fincraft',
         error: errors.join(', '),
         success: null,
         formData: { username, email, firstName, lastName }
@@ -135,7 +135,7 @@ router.post('/register', authMiddleware.redirectIfAuthenticated, async (req, res
     if (existingUser) {
       const field = existingUser.email === email.toLowerCase() ? 'email' : 'username';
       return res.render('auth/register', {
-        title: 'Register - StockSage',
+        title: 'Register - Fincraft',
         error: `A user with that ${field} already exists`,
         success: null,
         formData: { username, email, firstName, lastName }
@@ -169,7 +169,7 @@ router.post('/register', authMiddleware.redirectIfAuthenticated, async (req, res
   } catch (error) {
     console.error('Registration error:', error);
     res.render('auth/register', {
-      title: 'Register - StockSage',
+      title: 'Register - Fincraft',
       error: 'An error occurred during registration. Please try again.',
       success: null,
       formData: req.body

@@ -216,7 +216,7 @@
 }
 
 .trade-form-container h3 {
-    color: #1d2937;
+    color: #000000;
     font-size: 1.2rem;
     margin-bottom: 1rem;
 }
@@ -241,14 +241,13 @@
 .form-group input {
     padding: 0.8rem;
     border: none;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.851);
     color: #000000;
     border-radius: 0.4rem;
     font-size: 0.9rem;
 }
-
 .form-group input::placeholder {
-    color: #000000;
+    color: #ffffff;
 }
 
 .trade-summary {
@@ -306,7 +305,7 @@
 }
 
 .recommendations-section h2 {
-    color: #ffffff;
+    color: #000000;
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -335,7 +334,7 @@
 }
 
 .rec-label {
-    color: #93c5fd;
+    color: #02244b;
     font-size: 0.9rem;
 }
 
@@ -383,7 +382,7 @@
 }
 
 .stock-trades-section h2 {
-    color: #ffffff;
+    color: #000000;
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-transform: uppercase;

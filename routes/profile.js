@@ -55,13 +55,13 @@ router.get('/', requireAuth, async (req, res) => {
             user,
             stats,
             recentTrades,
-            title: 'Profile - StockSage'
+            title: 'Profile - Fincraft'
         });
     } catch (error) {
         console.error('Error loading profile:', error);
         res.status(500).render('error', { 
             message: 'Error loading profile page',
-            title: 'Error - StockSage'
+            title: 'Error - Fincraft'
         });
     }
 });
@@ -272,7 +272,7 @@ router.post('/delete', requireAuth, async (req, res) => {
         console.error('Error deleting account:', error);
         res.status(500).render('error', {
             message: 'Error deleting account. Please try again.',
-            title: 'Error - StockSage'
+            title: 'Error - Fincraft'
         });
     }
 });

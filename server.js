@@ -25,7 +25,7 @@ const paymentRoutes = require('./routes/payment');
 const authMiddleware = require('./middleware/authMiddleware');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/stocksage', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Fincraft', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -48,7 +48,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/stocksage'
+    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/Fincraft'
   }),
   cookie: {
     secure: false, // Set to true in production with HTTPS
@@ -88,7 +88,7 @@ app.get('/', (req, res) => {
     res.redirect('/dashboard');
   } else {
     res.render('auth/login', { 
-      title: 'StockSage - Login',
+      title: 'Fincraft - Login',
       error: null 
     });
   }
@@ -97,7 +97,7 @@ app.get('/', (req, res) => {
 // Search route
 app.get('/search', authMiddleware.requireAuth, (req, res) => {
   res.render('search', {
-    title: 'Search Stocks - StockSage',
+    title: 'Search Stocks - Fincraft',
     query: req.query.q || ''
   });
 });
@@ -143,7 +143,7 @@ app.get('/history', authMiddleware.requireAuth, async (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('error', {
-    title: 'Error - StockSage',
+    title: 'Error - Fincraft',
     message: err.message || 'Something went wrong!',
     error: err // <-- pass the error object
   });
@@ -152,14 +152,14 @@ app.use((err, req, res, next) => {
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('error', {
-    title: '404 - StockSage',
+    title: '404 - Fincraft',
     message: 'Page not found',
     error: {}
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 StockSage server running on http://localhost:${PORT}`);
+  console.log(`🚀 Fincraft server running on http://localhost:${PORT}`);
 });
 
 module.exports = app;

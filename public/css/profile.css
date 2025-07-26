@@ -1,0 +1,646 @@
+/* Profile Page Styles */
+
+/* Body and Background */
+body {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* Profile Card */
+.profile-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 12px 40px rgba(56, 189, 248, 0.25);
+}
+
+.profile-card .card-header {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-card .card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: translateX(-100%) translateY(-100%); }
+    50% { transform: translateX(0%) translateY(0%); }
+}
+
+/* Profile Image */
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.9);
+    object-fit: cover;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.profile-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-image-container:hover .profile-overlay {
+    opacity: 1;
+}
+
+.profile-overlay i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Profile Stats */
+.profile-stats {
+    padding: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0.5rem;
+    position: relative;
+}
+
+.stat-item::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.3), transparent);
+}
+
+.stat-item:last-child::after {
+    display: none;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0369a1;
+    margin-bottom: 0.3rem;
+    text-shadow: 0 0 0.5rem rgba(3, 105, 161, 0.3);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+/* Trading Summary */
+.trading-summary {
+    background: rgba(56, 189, 248, 0.1);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.15);
+}
+
+.trading-summary h5 {
+    color: #0369a1;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+.summary-metric {
+    text-align: center;
+    padding: 0.8rem 0;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+
+.metric-positive {
+    color: #10b981;
+    text-shadow: 0 0 0.6rem rgba(16, 185, 129, 0.3);
+}
+
+.metric-negative {
+    color: #ef4444;
+    text-shadow: 0 0 0.6rem rgba(239, 68, 68, 0.3);
+}
+
+.metric-neutral {
+    color: #0369a1;
+    text-shadow: 0 0 0.5rem rgba(3, 105, 161, 0.3);
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+/* Profile Form Cards */
+.card-shadow-profile,
+.card-shadow-recent {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.card-shadow-profile:hover,
+.card-shadow-recent:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 12px 40px rgba(56, 189, 248, 0.25);
+}
+
+.card-header-profile,
+.card-header-recent {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header-profile::before,
+.card-header-recent::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.card-header-profile h5,
+.card-header-recent h5 {
+    color: white;
+    margin: 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    position: relative;
+    z-index: 1;
+}
+
+.card-body-profile {
+    padding: 2rem;
+}
+
+/* Form Styling */
+.profile-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: #0369a1;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    font-size: 0.85rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    color: #1e293b;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 0.2rem rgba(14, 165, 233, 0.25);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.form-control::placeholder {
+    color: #94a3b8;
+}
+
+/* Profile Actions */
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.btn-update {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-update:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-0.1rem);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-0.1rem);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* Recent Activity */
+.recent-activity {
+    padding: 1.5rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 0.8rem;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateX(0.3rem);
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.15);
+}
+
+.activity-item:last-child {
+    margin-bottom: 0;
+}
+
+.activity-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.activity-buy {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.activity-sell {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.activity-content h6 {
+    color: #0369a1;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+
+.activity-content small {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* Badges */
+.badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+.bg-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.bg-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+/* Modal Styling */
+.modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header.bg-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+.btn-close-white {
+    filter: brightness(0) invert(1);
+}
+
+.alert-warning {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: #92400e;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 0.8rem;
+    border: none;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #047857;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #b91c1c;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* No Activity State */
+.text-center.py-4 {
+    padding: 3rem 1rem !important;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 0.8rem;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.text-center.py-4 i {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.text-center.py-4 p {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    transform: translateY(-0.1rem);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .profile-actions {
+        flex-direction: column;
+    }
+    
+    .btn-update,
+    .btn-delete {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .card-body-profile {
+        padding: 1.5rem;
+    }
+
+    .profile-actions {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+    }
+
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.8rem;
+    }
+
+    .activity-icon {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+        font-size: 1.3rem;
+    }
+
+    .trading-summary {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-card .card-header {
+        padding: 1.5rem 1rem;
+    }
+
+    .stat-item {
+        padding: 0.3rem;
+    }
+
+    .stat-number {
+        font-size: 1.3rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .form-control {
+        padding: 0.7rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-update,
+    .btn-delete {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.profile-card,
+.trading-summary,
+.card-shadow-profile,
+.card-shadow-recent {
+    animation: fadeIn 0.5s ease;
+}
+
+.activity-item {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Focus States */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 0.1rem solid #0ea5e9;
+    outline-offset: 0.1rem;
+}
+
+/* Loading States */
+.btn-update:disabled,
+.btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Glassy Effects */
+.profile-card::before,
+.card-shadow-profile::before,
+.card-shadow-recent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+    z-index: 1;
+}
+
+.profile-card:hover::before,
+.card-shadow-profile:hover::before,
+.card-shadow-recent:hover::before {
+    left: 100%;
+}

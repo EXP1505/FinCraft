@@ -1,7 +1,7 @@
 <nav class="navbar">
     <div class="nav-container">
         <a href="/dashboard" class="logo">
-            <img src="/images/navbar.png" alt="StockSage Logo" style="height:50px; margin-right: 200px;">
+            <img src="/images/navbar.png" alt="Fincraft Logo" style="height:50px; margin-right: 200px;">
         </a>
         <div class="nav-links">
             <a href="/dashboard">
@@ -16,6 +16,9 @@
             <a href="/brokers">
                 <i class="fas fa-user-tie"></i> Brokers
             </a>
+            <a href="/news">
+                <i class="fas fa-newspaper"></i> News
+            </a>
             <a href="/auth/logout" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -25,6 +28,16 @@
         </div>
     </div>
     <!-- In your navbar -->
+     <div  class="search-bar-top">
+        <form action="/search" method="GET" class="search-form">
+            <div class="search-input-group">
+                <input type="text" name="symbol" placeholder="Enter stock symbol (e.g., AAPL, GOOGL)" required>
+                <button type="submit">
+                    <i class="fas fa-search"></i>search
+                </button>
+            </div>
+        </form>
+    </div>
 <a href="/profile" class="profile-link" title="Profile">
     <% if (user && user.profileImage) { %>
         <img src="<%= user.profileImage %>" alt="Profile" class="profile-image-nav">

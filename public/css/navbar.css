@@ -28,6 +28,11 @@
     vertical-align: middle;
 }
 
+.serch-section input:focus,
+.serch-section button:focus{
+    outline: none;
+}
+
 .nav-links {
     display: flex;
     align-items: center;
