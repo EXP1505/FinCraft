@@ -20,6 +20,7 @@ const stocksRoutes = require('./routes/stocks');
 const tradesRoutes = require('./routes/trades');
 const brokersRoutes = require('./routes/brokers');
 const paymentRoutes = require('./routes/payment');
+const searchRoutes = require('./routes/search'); 
 
 // Import middleware
 const authMiddleware = require('./middleware/authMiddleware');
@@ -79,6 +80,7 @@ app.use('/stocks', authMiddleware.requireAuth, stocksRoutes);
 app.use('/trades', authMiddleware.requireAuth, tradesRoutes);
 app.use('/brokers', authMiddleware.requireAuth, brokersRoutes);
 app.use('/payment', authMiddleware.requireAuth, paymentRoutes);
+app.use('/search', authMiddleware.requireAuth, searchRoutes);
 const profileRoutes = require('./routes/profile');
 app.use('/profile', profileRoutes);
 
@@ -94,25 +96,11 @@ app.get('/', (req, res) => {
   }
 });
 
-// Search route
-app.get('/search', authMiddleware.requireAuth, (req, res) => {
-  res.render('search', {
-    title: 'Search Stocks - Fincraft',
-    query: req.query.q || ''
-  });
-});
-
-// Profile route
-// app.get('/profile', authMiddleware.requireAuth, (req, res) => {
-//   res.render('profile', { user: req.user});
-// });
-// const profileRoutes = require('./routes/profile');
-// app.use('/profile', profileRoutes);
 
 app.get('/stock/:symbol', (req, res) => {
   res.redirect(`/stocks/${req.params.symbol}`);
 });
-const Trade = require('./models/Trade'); // Add at the top if not already
+const Trade = require('./models/Trade');
 
 app.get('/history', authMiddleware.requireAuth, async (req, res) => {
   try {
@@ -145,7 +133,8 @@ app.use((err, req, res, next) => {
   res.status(500).render('error', {
     title: 'Error - Fincraft',
     message: err.message || 'Something went wrong!',
-    error: err // <-- pass the error object
+    error: err,
+    user: req.session.user || null
   });
 });
 
@@ -154,7 +143,8 @@ app.use((req, res) => {
   res.status(404).render('error', {
     title: '404 - Fincraft',
     message: 'Page not found',
-    error: {}
+    error: {},
+    user: req.session.user || null
   });
 });
 

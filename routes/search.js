@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 const { requireAuth } = require('../middleware/authMiddleware');
 
-const FINNHUB_API_KEY = 'd12ohn9r01qv1k0m9nrgd12ohn9r01qv1k0m9ns0';
+const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 
 // Real-time search using Finnhub API
 const searchStocks = async (query) => {
@@ -101,8 +101,10 @@ router.get('/', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error in search:', error);
         res.status(500).render('error', { 
+            title: 'Search Error - Fincraft',
             message: 'Error performing search', 
-            user: req.user 
+            user: req.user,
+            error: error || {}
         });
     }
 });
