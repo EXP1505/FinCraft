@@ -56,8 +56,6 @@ Get a quick overview of your financial performance:
   * **Simulated Form & Confirmation:** Experience a mock payment process with a confirmation, without any real financial transactions.
 
 ## ⚠️ Known Issues
-
-  * **Register Page Profession Field:** The registration page currently lacks fields to specify a user's profession (e.g., "broker" or "normal trader"). This functionality will be added in a future update.
   * **Dashboard Error After Trade:** When a trade is made from the individual stock page, the dashboard often responds with an error. I am working to fix this interaction.
 
 ## 🚀 Getting Started
