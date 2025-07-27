@@ -33,6 +33,10 @@
     outline: none;
 }
 
+.search-icon-btn i{
+    font-size: 2rem;
+    vertical-align: middle;
+}
 .nav-links {
     display: flex;
     align-items: center;

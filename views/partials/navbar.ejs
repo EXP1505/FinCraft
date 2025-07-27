@@ -29,14 +29,9 @@
     </div>
     <!-- In your navbar -->
      <div  class="search-bar-top">
-        <form action="/search" method="GET" class="search-form">
-            <div class="search-input-group">
-                <input type="text" name="symbol" placeholder="Enter stock symbol (e.g., AAPL, GOOGL)" required>
-                <button type="submit">
-                    <i class="fas fa-search"></i>search
-                </button>
-            </div>
-        </form>
+            <a href="/search" class="search-icon-btn" title="Search">
+                <img src="/images/letter.png" alt="search" class="search-icon" style="height: 30px; width: 100px;"><img src="/images/search.png" alt="Search Icon" class="search-icon" style ="height: 50px; width: 50px;">
+            </a>
     </div>
 <a href="/profile" class="profile-link" title="Profile">
     <% if (user && user.profileImage) { %>

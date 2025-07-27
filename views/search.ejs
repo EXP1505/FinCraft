@@ -1,7 +1,8 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
-
+<link rel="stylesheet" href="/css/search.css">
 <div class="container">
+
     <div class="search-header">
         <h1>Stock Search</h1>
         
@@ -37,7 +38,13 @@
                 <% } %>
             </p>
         </div>
-
+        <form class="search-form mt-4 mb-4" method="GET" action="/search">
+            <div class="search-input-group" style="position:relative;">
+                <input type="text" id="searchInput" name="q" class="form-control" placeholder="Search stocks by symbol or name..." value="<%= query || '' %>" autocomplete="off" />
+                <div id="searchSuggestions" class="suggestions-dropdown"></div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Search</button>
+        </form>
         <div class="search-results">
             <% if (results && results.length > 0) { %>
                 <div class="stocks-grid">
@@ -166,7 +173,7 @@ function goToStock(symbol) {
 // Add stock to watchlist
 async function addToWatchlist(symbol) {
     try {
-        const response = await fetch('/api/watchlist/add', {
+        const response = await fetch('/search/track', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
