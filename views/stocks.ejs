@@ -8,24 +8,11 @@
         <h1>Browse Stocks</h1>
         <p>Discover and track your favorite stocks</p>
     </div>
-
-    <!-- Search Section -->
-    <div class="search-section">
-        <form action="/search" method="GET" class="search-form">
-            <div class="search-input-group">
-                <input type="text" name="symbol" placeholder="Search by symbol (AAPL, GOOGL, TSLA...)" value="<%= searchQuery || '' %>">
-                <button type="submit">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </div>
-
     <!-- Popular Stocks -->
     <div class="stocks-section">
     <h2>Popular Stocks</h2>
     <% if (!stocks || stocks.length === 0) { %>
-      <div style="text-align:center; color:#888; margin: 2rem 0;">
+      <div style="text-align:center; color:#af1313; margin: 2rem 0;">
           No stocks to display. Try searching above!
       </div>
     <% } %>
@@ -75,6 +62,10 @@
                                 <div class="stock-price">
                                     $<%= stock.price ? stock.price.toFixed(2) : 'Loading...' %>
                                 </div>
+                                <div class="stock-change <%= stock.change >= 0 ? 'positive' : 'negative' %>">
+                                    <%= stock.change >= 0 ? '+' : '' %><%= stock.change.toFixed(2) %>
+                                    (<%= stock.changePercent.toFixed(2) %>%)
+                                </div>
                             </div>
                         </a>
                     </div>
@@ -89,7 +80,6 @@
         <div class="categories-grid">
             <div class="category-card">
                 <h3>Technology</h3>
-                <p>AAPL, GOOGL, MSFT, NVDA</p>
                 <div class="category-stocks">
                     <a href="/stock/AAPL">AAPL</a>
                     <a href="/stock/GOOGL">GOOGL</a>
@@ -100,7 +90,6 @@
             
             <div class="category-card">
                 <h3>Electric Vehicles</h3>
-                <p>TSLA, NIO, XPEV, LI</p>
                 <div class="category-stocks">
                     <a href="/stock/TSLA">TSLA</a>
                     <a href="/stock/NIO">NIO</a>
@@ -111,7 +100,6 @@
             
             <div class="category-card">
                 <h3>Social Media</h3>
-                <p>META, TWTR, SNAP, PINS</p>
                 <div class="category-stocks">
                     <a href="/stock/META">META</a>
                     <a href="/stock/SNAP">SNAP</a>
@@ -121,7 +109,6 @@
             
             <div class="category-card">
                 <h3>Finance</h3>
-                <p>JPM, BAC, WFC, GS</p>
                 <div class="category-stocks">
                     <a href="/stock/JPM">JPM</a>
                     <a href="/stock/BAC">BAC</a>

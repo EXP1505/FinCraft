@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('partials/header') %>
-    <title>Error | StockSage</title>
+    <title>Error | Fincraft</title>
 </head>
 <body>
     <%- include('partials/navbar') %>
@@ -12,7 +12,7 @@
             <h1 class="mb-4">Error</h1>
             <div class="alert alert-danger">
                 <p class="mb-1"><strong><%= message %></strong></p>
-                <% if (error.status) { %>
+                <% if (error && error.status) { %>
                     <p class="mb-1">Status Code: <%= error.status %></p>
                 <% } %>
             </div>

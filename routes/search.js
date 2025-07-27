@@ -17,21 +17,31 @@ const searchStocks = async (query) => {
             displaySymbol: symbol
         }));
     }
-    const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${FINNHUB_API_KEY}`;
-    const response = await axios.get(url);
-    return response.data.result.map(stock => ({
-        symbol: stock.symbol,
-        description: stock.description,
-        type: stock.type,
-        displaySymbol: stock.displaySymbol
-    }));
+    try{
+        const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${FINNHUB_API_KEY}`;
+        const response = await axios.get(url);
+        return response.data.result.map(stock => ({
+            symbol: stock.symbol,
+            description: stock.description,
+            type: stock.type,
+            displaySymbol: stock.displaySymbol
+        }));
+    } catch (error) {
+        console.error('Finnhub search error:', error.message);
+        return [];
+    }
 };
 
 // Real-time quote using Finnhub API
 const getStockQuote = async (symbol) => {
-    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_API_KEY}`;
-    const response = await axios.get(url);
-    return response.data;
+    try{
+        const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_API_KEY}`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (error) {
+        console.error('Finnhub quote error:', error.message);
+        return { c: 0, pc: 0 };
+    }
 };
 
 // GET /search - Search page
@@ -48,12 +58,12 @@ router.get('/', requireAuth, async (req, res) => {
             // Add mock price data to results
             for (let stock of results) {
                 const quote = await getStockQuote(stock.symbol);
-                console.log(stock.symbol, quote);
-                stock.currentPrice = quote.c.toFixed(2);
-                stock.previousClose = quote.pc.toFixed(2);
-                stock.change = (quote.c - quote.pc).toFixed(2);
-                stock.changePercent = (((quote.c - quote.pc) / quote.pc) * 100).toFixed(2);
-                stock.isPositive = quote.c >= quote.pc;
+                // console.log(stock.symbol, quote);
+                stock.currentPrice = Number(quote.c);
+                stock.previousClose = Number(quote.pc);
+                stock.change = Number(quote.c) - Number(quote.pc);
+                stock.changePercent = quote.pc ? ((Number(quote.c) - Number(quote.pc)) / Number(quote.pc)) * 100 : 0;
+                stock.isPositive = Number(quote.c) >= Number(quote.pc);
             }
             
             // Filter by category if specified
@@ -82,7 +92,7 @@ router.get('/', requireAuth, async (req, res) => {
         // Add price data to trending
         for (let stock of trending) {
             const quote = await getStockQuote(stock.symbol);
-            console.log(stock.symbol, quote);
+            // console.log(stock.symbol, quote);
             stock.currentPrice = quote.c.toFixed(2);
             stock.changePercent = (((quote.c - quote.pc) / quote.pc) * 100).toFixed(2);
             stock.isPositive = quote.c >= quote.pc;
@@ -101,8 +111,10 @@ router.get('/', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error in search:', error);
         res.status(500).render('error', { 
+            title: 'Search Error - Fincraft',
             message: 'Error performing search', 
-            user: req.user 
+            user: req.user,
+            error: error || {}
         });
     }
 });
@@ -167,12 +179,12 @@ router.get('/categories/:category', requireAuth, async (req, res) => {
         // Add price data
         for (let stock of stocks) {
             const quote = await getStockQuote(stock.symbol);
-            console.log(stock.symbol, quote);
-            stock.currentPrice = quote.c.toFixed(2);
-            stock.previousClose = quote.pc.toFixed(2);
-            stock.change = (quote.c - quote.pc).toFixed(2);
-            stock.changePercent = (((quote.c - quote.pc) / quote.pc) * 100).toFixed(2);
-            stock.isPositive = quote.c >= quote.pc;
+            // console.log(stock.symbol, quote);
+            stock.currentPrice = Number(quote.c);
+            stock.previousClose = Number(quote.pc);
+            stock.change = Number(quote.c) - Number(quote.pc);
+            stock.changePercent = quote.pc ? ((Number(quote.c) - Number(quote.pc)) / Number(quote.pc)) * 100 : 0;
+            stock.isPositive = Number(quote.c) >= Number(quote.pc);
         }
         
         // Filter and sort by category

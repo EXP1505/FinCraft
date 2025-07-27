@@ -1,0 +1,153 @@
+/* Navbar Container */
+.navbar {
+    width: 100vw;
+    background: #171c2d;
+    box-shadow: 0 3px 24px 0 #0006;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+    border-bottom: 1.5px solid #222c3d;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 98vw;
+    margin: 0 auto;
+    padding: 0 2vw;
+    height: 68px;
+}
+
+.logo img {
+    height: 48px;
+    display: block;
+    margin-right: 60px;
+    vertical-align: middle;
+}
+
+.serch-section input:focus,
+.serch-section button:focus{
+    outline: none;
+}
+
+.search-icon-btn i{
+    font-size: 2rem;
+    vertical-align: middle;
+}
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #cce7ff;
+    font-size: 1.08em;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 7px 12px;
+    border-radius: 7px;
+    transition: background 0.18s, color 0.18s;
+    position: relative;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    background: #22395a;
+    color: #65c7fd;
+}
+
+.logout-btn {
+    background: #22395a;
+    color: #ef4444;
+    font-weight: 600;
+    border-radius: 7px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.logout-btn:hover {
+    background: #ef444420;
+    color: #ffffff;
+}
+
+/* Profile Link (right of navbar) */
+.profile-link {
+    display: flex;
+    align-items: center;
+    margin-left: 18px;
+    margin-right: 26px;
+    text-decoration: none;
+}
+
+.profile-image-nav {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #38bdf8;
+    background: #23344f;
+    margin: 10px;
+    transition: border 0.2s;
+}
+
+.profile-image-nav:hover {
+    border: 2.5px solid #22c55e;
+}
+
+.profile-initial {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    background: #38bdf8cc;
+    color: #0d1628;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3em;
+    font-weight: 700;
+    border: 2px solid #38bdf8;
+    margin-left: 7px;
+    transition: border 0.2s, background 0.18s, color 0.18s;
+}
+
+.profile-initial:hover {
+    border: 2.5px solid #22c55e;
+    background: #22c55e;
+    color: #fff;
+}
+
+/* Icons in Navbar */
+.nav-links i,
+.logout-btn i {
+    font-size: 1em;
+    vertical-align: middle;
+    margin-right: 2.5px;
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+    .nav-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 4vw;
+        height: auto;
+    }
+    .nav-links {
+        gap: 18px;
+        margin-top: 9px;
+    }
+    .profile-link {
+        margin-left: 0;
+    }
+}
+
+/* Optional: hide horizontal overflow on small screens */
+body {
+    overflow-x: hidden;
+}

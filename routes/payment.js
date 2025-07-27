@@ -93,7 +93,7 @@ router.get('/', requireAuth, async (req, res) => {
         const user = await User.findById(req.user._id);
         
         res.render('payment', {
-            title: 'Payment - StockSage',
+            title: 'Payment - Fincraft',
             user,
             plans: SUBSCRIPTION_PLANS,
             currentPlan: user.subscription || 'free'
@@ -102,7 +102,7 @@ router.get('/', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading payment page:', error);
         res.status(500).render('error', { 
-            title: 'Error - StockSage',
+            title: 'Error - Fincraft',
             message: 'Error loading payment page', 
             user: req.user || null,
             error: {}
@@ -141,7 +141,7 @@ router.get('/checkout/:plan', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading checkout page:', error);
         res.status(500).render('error', { 
-            title: 'Error - StockSage',
+            title: 'Error - Fincraft',
             message: 'Error loading checkout page', 
             user: req.user || null,
             error: {}
@@ -295,7 +295,7 @@ router.get('/success', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading success page:', error);
         res.status(500).render('error', { 
-            title: 'Error - StockSage',
+            title: 'Error - Fincraft',
             message: 'Error loading success page', 
             user: req.user || null,
             error: {}
@@ -364,7 +364,7 @@ router.get('/invoice/:transactionId', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error generating invoice:', error);
         res.status(500).render('error', {
-            title: 'Error - StockSage', 
+            title: 'Error - Fincraft', 
             message: 'Error generating invoice', 
             user: req.user || null,
             error: {}
@@ -406,7 +406,7 @@ router.get('/billing', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading billing page:', error);
         res.status(500).render('error', {
-            title: 'Error - StockSage', 
+            title: 'Error - Fincraft', 
             message: 'Error loading billing page', 
             user: req.user || null,
             error: {}
@@ -418,7 +418,7 @@ router.get('/billing', requireAuth, async (req, res) => {
 router.get('/plans/compare', requireAuth, async (req, res) => {
     try {
         res.render('plans-compare', {
-            title: 'Error - StockSage',
+            title: 'Error - Fincraft',
             user: req.user,
             plans: SUBSCRIPTION_PLANS
         });
@@ -426,7 +426,7 @@ router.get('/plans/compare', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading plans comparison:', error);
         res.status(500).render('error', {
-            title: 'Error - StockSage', 
+            title: 'Error - Fincraft', 
             message: 'Error loading plans comparison', 
             user: req.user || null,
             error: {}

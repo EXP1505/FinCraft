@@ -55,7 +55,7 @@ const authMiddleware = {
         return next();
       } else {
         return res.render('payment', {
-          title: 'Upgrade Required - StockSage',
+          title: 'Upgrade Required - Fincraft',
           message: 'This feature requires a premium account. Please upgrade to continue.',
           returnUrl: req.originalUrl
         });
@@ -72,7 +72,7 @@ const authMiddleware = {
         return next();
       } else {
         return res.render('payment', {
-          title: 'Pro Account Required - StockSage',
+          title: 'Pro Account Required - Fincraft',
           message: 'This feature requires a pro account. Please upgrade to continue.',
           returnUrl: req.originalUrl
         });

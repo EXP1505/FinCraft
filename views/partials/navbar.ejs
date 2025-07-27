@@ -1,7 +1,7 @@
 <nav class="navbar">
     <div class="nav-container">
         <a href="/dashboard" class="logo">
-            <img src="/images/navbar.png" alt="StockSage Logo" style="height:50px; margin-right: 200px;">
+            <img src="/images/navbar.png" alt="Fincraft Logo" style="height:50px; margin-right: 200px;">
         </a>
         <div class="nav-links">
             <a href="/dashboard">
@@ -16,6 +16,9 @@
             <a href="/brokers">
                 <i class="fas fa-user-tie"></i> Brokers
             </a>
+            <a href="/news">
+                <i class="fas fa-newspaper"></i> News
+            </a>
             <a href="/auth/logout" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -25,6 +28,11 @@
         </div>
     </div>
     <!-- In your navbar -->
+     <div  class="search-bar-top">
+            <a href="/search" class="search-icon-btn" title="Search">
+                <img src="/images/letter.png" alt="search" class="search-icon" style="height: 30px; width: 100px;"><img src="/images/search.png" alt="Search Icon" class="search-icon" style ="height: 50px; width: 50px;">
+            </a>
+    </div>
 <a href="/profile" class="profile-link" title="Profile">
     <% if (user && user.profileImage) { %>
         <img src="<%= user.profileImage %>" alt="Profile" class="profile-image-nav">
@@ -34,43 +42,5 @@
         </div>
     <% } %>
 </a>
-
-<!-- Add this CSS to your stylesheet -->
-<style>
-.profile-link {
-    text-decoration: none;
-    display: inline-block;
-}
-
-.profile-image-nav {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ddd;
-    transition: border-color 0.3s ease;
-}
-
-.profile-image:hover {
-    border-color: #007bff;
-}
-
-.profile-initial {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 18px;
-    transition: background-color 0.3s ease;
-}
-
-.profile-initial:hover {
-    background-color: #0056b3;
-}
-</style>
+<link rel="stylesheet" href="/css/navbar.css">
 </nav>

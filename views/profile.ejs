@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
-
+<link rel="stylesheet" href="/css/profile.css">
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4">
@@ -12,7 +12,7 @@
                             <label for="profileImageInput" style="cursor:pointer;">
                                 <img src="<%= user.profileImage || '/images/default-profile.png' %>" 
                                     alt="Profile Picture" 
-                                    class="profile-image rounded-circle"
+                                    class="profile-image"
                                     id="profileImage">
                                 <div class="profile-overlay">
                                     <i class="fas fa-camera"></i>

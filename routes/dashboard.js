@@ -33,6 +33,33 @@ router.get('/', async (req, res) => {
     const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
     const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 
+    const popularStocksList = [
+      'SHALBY', 'JPM', 'JNJ', 'GD', 'PEP', 
+      'BA', 'KO', 'BTC', 'UNH', 'LMT'
+    ];
+
+    const popularStocks = await Promise.all(popularStocksList.map(async (symbol) => {
+      try {
+        const response = await axios.get(
+          `${FINNHUB_BASE_URL}/quote`,
+          { params: { symbol, token: FINNHUB_API_KEY } }
+        );
+        return {
+          symbol,
+          price: response.data.c || 0,
+          change: response.data.d || 0,
+          changePercent: response.data.dp || 0
+        };
+      } catch (error) {
+        return {
+          symbol,
+          price: 0,
+          change: 0,
+          changePercent: 0
+        };
+      }
+    }));
+
     const watchlist = await Promise.all(
       watchlistRaw.map(async (item) => {
         let currentPrice = null, change = null, changePercent = null;
@@ -67,13 +94,14 @@ router.get('/', async (req, res) => {
     ]);
 const analyticsData = await analytics.calculatePerformanceMetrics(userId, 'all');
     res.render('dashboard', {
-    title: 'Dashboard - StockSage',
+    title: 'Dashboard - Fincraft',
     analytics: allTime,      // allTime stats object
     year: yearData,          // 1 year stats object
     month: monthData,        // 1 month stats object
     week: weekData,          // 1 week stats object
     today: todayData,        // today stats object
     recentTrades,
+    popularStocks,
     watchlist,
     monthlyPerformance,
     topPerformers,
@@ -93,7 +121,7 @@ const analyticsData = await analytics.calculatePerformanceMetrics(userId, 'all')
   } catch (error) {
     console.error('Dashboard error:', error);
     res.render('error', {
-      title: 'Error - StockSage',
+      title: 'Error - Fincraft',
       message: 'Unable to load dashboard data'
     });
   }
