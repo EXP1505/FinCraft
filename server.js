@@ -19,7 +19,6 @@ const dashboardRoutes = require('./routes/dashboard');
 const stocksRoutes = require('./routes/stocks');
 const tradesRoutes = require('./routes/trades');
 const brokersRoutes = require('./routes/brokers');
-const paymentRoutes = require('./routes/payment');
 const searchRoutes = require('./routes/search'); 
 
 // Import middleware
@@ -45,7 +44,7 @@ app.use(express.json());
 
 // Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-here',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
@@ -79,8 +78,9 @@ app.use('/dashboard', authMiddleware.requireAuth, dashboardRoutes);
 app.use('/stocks', authMiddleware.requireAuth, stocksRoutes);
 app.use('/trades', authMiddleware.requireAuth, tradesRoutes);
 app.use('/brokers', authMiddleware.requireAuth, brokersRoutes);
-app.use('/payment', authMiddleware.requireAuth, paymentRoutes);
 app.use('/search', authMiddleware.requireAuth, searchRoutes);
+const newsRoutes = require('./routes/news');
+app.use('/news', newsRoutes);
 const profileRoutes = require('./routes/profile');
 app.use('/profile', profileRoutes);
 

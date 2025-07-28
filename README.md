@@ -7,11 +7,8 @@ Fincraft is a full-stack finance web application that empowers users to track re
 ### Authentication
 
   * **User Registration:** Securely create an account.
-    ![Image](https://github.com/user-attachments/assets/f29d4d3a-968f-4878-80ee-302949b74d07)
   * **Login/Logout:** Manage user sessions.
-    ![Image](https://github.com/user-attachments/assets/e07522a6-2b2d-4e4b-9d4e-c68a6a530ec8)
   * **Password Security:** Passwords are stored using bcrypt hashing for enhanced security.
-    ![Image](https://github.com/user-attachments/assets/091547c1-cbb4-4e5a-a11d-fa873afa2e67)
 
 ### Dashboard
 
@@ -20,14 +17,11 @@ Get a quick overview of your financial performance:
   * **Profit/Loss Summary:** Track your overall profits and losses for various timeframes (all-time, 1 year, 1 month, 1 week, today).
   * **Trade List:** View a summary of your recent simulated trades.
   * **Watchlist:** Keep an eye on stocks you're interested in.
-    ![Image](https://github.com/user-attachments/assets/e89b9613-20e6-480e-9575-2fa38e543104)
-    ![Image](https://github.com/user-attachments/assets/a12b800f-0cf2-4d60-a424-d155520cdcb9)
      
 ### Stocks Page (`/stocks`)
 
   * **Search & View Stocks:** Easily find and explore different stocks.
   * **Watchlist Management:** Add or remove stocks from your personalized watchlist.
-  ![Image](https://github.com/user-attachments/assets/b1ace4bf-6ee6-4b05-9d90-f7ddba29f521)
 
 ### Individual Stock Page (`/stock/:symbol`)
 
@@ -38,7 +32,6 @@ Get a quick overview of your financial performance:
       * **Trade Logging:** Automatically log trade details including price, timestamp, and calculated profit/loss.
       * **Known Issue:** After making a trade from the individual stock page, the dashboard may display an error. This is an ongoing issue being investigated.
   * **Recommendations:** Get general recommendations (BUY/HOLD/SELL) based on market data.
-    <img width="1622" height="888" alt="Image" src="https://github.com/user-attachments/assets/22b966fb-c4ff-415a-a9d0-46cb54bb654c" />
 
 ### Trade History (`/history`)
 
@@ -50,10 +43,9 @@ Get a quick overview of your financial performance:
 
   * **Financial Advisors:** Browse a list of simulated financial advisors with basic information. This list can be static or dynamically stored in MongoDB.
 
-### Mock Payment Page (`/payment`)
+### Market News page (`/news`)
 
-  * **Upgrade Plans:** Explore different simulated upgrade plans.
-  * **Simulated Form & Confirmation:** Experience a mock payment process with a confirmation, without any real financial transactions.
+  * **Financial News:** News that can effects the market and the ones that are popular among the people in the market is getting displayed with the help of finnhub API.
 
 ## ⚠️ Known Issues
   * **Dashboard Error After Trade:** When a trade is made from the individual stock page, the dashboard often responds with an error. I am working to fix this interaction.

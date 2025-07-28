@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Stock Market Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/news.css">
+</head>
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+<body>
+    <!-- Navigation (include your existing nav here) -->
+    
+    <!-- News Header -->
+    <div class="news-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-newspaper me-3"></i>
+                        <%= title %>
+                    </h1>
+                    <% if (locals.symbol) { %>
+                        <div class="stock-symbol-badge">
+                            <i class="fas fa-chart-line me-2"></i><%= symbol %>
+                        </div>
+                    <% } %>
+                    <p class="mb-0">Stay updated with the latest market news and insights</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <i class="fas fa-clock me-2"></i>
+                    <span id="last-updated">Last updated: <%= new Date().toLocaleString() %></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Error Message -->
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <%= error %>
+            </div>
+        <% } %>
+
+        <!-- Filters -->
+        <div class="category-filter">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-3">
+                        <i class="fas fa-filter me-2"></i>Filter News
+                    </h5>
+                    
+                    <% if (!locals.symbol) { %>
+                        <!-- Category filters for general news -->
+                        <div class="category-buttons">
+                            <button class="btn filter-btn <%= (locals.category === 'general' || !locals.category) ? 'active' : '' %>" 
+                                    onclick="filterByCategory('general')">
+                                <i class="fas fa-globe me-1"></i>General
+                            </button>
+                            <button class="btn filter-btn <%= locals.category === 'forex' ? 'active' : '' %>" 
+                                    onclick="filterByCategory('forex')">
+                                <i class="fas fa-dollar-sign me-1"></i>Forex
+                            </button>
+                            <button class="btn filter-btn <%= locals.category === 'crypto' ? 'active' : '' %>" 
+                                    onclick="filterByCategory('crypto')">
+                                <i class="fab fa-bitcoin me-1"></i>Crypto
+                            </button>
+                            <button class="btn filter-btn <%= locals.category === 'merger' ? 'active' : '' %>" 
+                                    onclick="filterByCategory('merger')">
+                                <i class="fas fa-handshake me-1"></i>M&A
+                            </button>
+                        </div>
+                    <% } else { %>
+                        <!-- Date range filter for stock news -->
+                        <div class="date-filter">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label class="form-label">From Date:</label>
+                                    <input type="date" class="form-control" id="from-date" 
+                                           value="<%= (locals.dateRange && locals.dateRange.from) ? dateRange.from : '' %>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">To Date:</label>
+                                    <input type="date" class="form-control" id="to-date" 
+                                           value="<%= (locals.dateRange && locals.dateRange.to) ? dateRange.to : '' %>">
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button class="btn btn-primary me-2" onclick="filterByDateRange()">
+                                        <i class="fas fa-search me-1"></i>Filter
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="clearDateFilter()">
+                                        <i class="fas fa-times me-1"></i>Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-outline-primary" onclick="refreshNews()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading news...</p>
+        </div>
+
+        <!-- News Content -->
+        <div id="news-container">
+            <% if (locals.news && news.length > 0) { %>
+                <div class="row" id="news-grid">
+                    <% news.forEach(function(article) { %>
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card news-card h-100">
+                                <% if (article.image) { %>
+                                    <img src="<%= article.image %>" class="news-image" alt="<%= article.headline %>" 
+                                         onerror="this.style.display='none'">
+                                <% } %>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="news-meta mb-2">
+                                        <span class="news-source"><%= article.source || 'Unknown Source' %></span>
+                                        <span class="ms-2">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <%= article.datetime ? new Date(article.datetime * 1000).toLocaleDateString() : 'Date unknown' %>
+                                        </span>
+                                        <% if (article.category) { %>
+                                            <span class="badge bg-secondary ms-2"><%= article.category %></span>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <h5 class="card-title">
+                                        <% if (article.url) { %>
+                                            <a href="<%= article.url %>" target="_blank" 
+                                               class="text-decoration-none text-dark">
+                                                <%= article.headline %>
+                                            </a>
+                                        <% } else { %>
+                                            <%= article.headline %>
+                                        <% } %>
+                                    </h5>
+                                    
+                                    <% if (article.summary) { %>
+                                        <p class="card-text text-muted flex-grow-1">
+                                            <%= article.summary.length > 150 ? article.summary.substring(0, 150) + '...' : article.summary %>
+                                        </p>
+                                    <% } %>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        <% if (article.url) { %>
+                                            <a href="<%= article.url %>" target="_blank" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-external-link-alt me-1"></i>Read More
+                                            </a>
+                                        <% } else { %>
+                                            <span class="btn btn-secondary btn-sm disabled">
+                                                <i class="fas fa-ban me-1"></i>No Link
+                                            </span>
+                                        <% } %>
+                                        
+                                        <% if (article.related) { %>
+                                            <small class="text-muted">
+                                                <i class="fas fa-link me-1"></i>
+                                                <%= article.related.split(',').length %> related
+                                            </small>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+                
+                <!-- Pagination (if needed) -->
+                <% if (locals.pagination) { %>
+                    <nav aria-label="News pagination">
+                        <ul class="pagination justify-content-center">
+                            <% if (pagination.currentPage > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= pagination.currentPage - 1 %><%= locals.category ? '&category=' + category : '' %>">
+                                        Previous
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                                <li class="page-item <%= pagination.currentPage === i ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %><%= locals.category ? '&category=' + category : '' %>">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (pagination.currentPage < pagination.totalPages) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= pagination.currentPage + 1 %><%= locals.category ? '&category=' + category : '' %>">
+                                        Next
+                                    </a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                <% } %>
+            <% } else { %>
+                <div class="no-news text-center py-5">
+                    <i class="fas fa-newspaper fa-3x mb-3 text-muted"></i>
+                    <h4>No news articles found</h4>
+                    <p class="text-muted">Try adjusting your filters or check back later for new updates.</p>
+                    <% if (locals.symbol) { %>
+                        <a href="/news" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to General News
+                        </a>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show loading spinner
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('news-container').style.opacity = '0.5';
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('news-container').style.opacity = '1';
+        }
+
+        // Filter by category (for general news)
+        function filterByCategory(category) {
+            showLoading();
+            const url = new URL(window.location);
+            url.searchParams.set('category', category);
+            url.searchParams.delete('page'); // Reset pagination
+            window.location.href = url.toString();
+        }
+
+        // Filter by date range (for stock news)
+        function filterByDateRange() {
+            const fromDate = document.getElementById('from-date').value;
+            const toDate = document.getElementById('to-date').value;
+            
+            if (fromDate && toDate && fromDate > toDate) {
+                alert('From date cannot be later than To date');
+                return;
+            }
+            
+            showLoading();
+            const url = new URL(window.location);
+            if (fromDate) url.searchParams.set('from', fromDate);
+            if (toDate) url.searchParams.set('to', toDate);
+            url.searchParams.delete('page'); // Reset pagination
+            
+            window.location.href = url.toString();
+        }
+
+        // Clear date filter
+        function clearDateFilter() {
+            showLoading();
+            const url = new URL(window.location);
+            url.searchParams.delete('from');
+            url.searchParams.delete('to');
+            url.searchParams.delete('page'); // Reset pagination
+            window.location.href = url.toString();
+        }
+
+        // Refresh news
+        function refreshNews() {
+            showLoading();
+            window.location.reload();
+        }
+
+        // Auto-refresh timestamp every 5 minutes
+        setInterval(function() {
+            document.getElementById('last-updated').textContent = 
+                'Last updated: ' + new Date().toLocaleString();
+        }, 300000);
+
+        // Enhanced functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click tracking for news links
+            const newsLinks = document.querySelectorAll('.news-card a[target="_blank"]');
+            newsLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Optional: Add analytics tracking here
+                    console.log('News article clicked:', this.href);
+                });
+            });
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'r':
+                            e.preventDefault();
+                            refreshNews();
+                            break;
+                    }
+                }
+            });
+
+            // Auto-hide loading spinner on page load
+            hideLoading();
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // Page became visible, optionally refresh data
+                // refreshNews();
+            }
+        });
+    </script>
+</body>
+<%- include('partials/footer') %>
+</html>

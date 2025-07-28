@@ -1,4 +1,4 @@
-// ===== STOCKSAGE STOCK.JS - Individual Stock Page Functionality =====
+// ===== STOCK.JS - Individual Stock Page Functionality =====
 
 // ===== GLOBAL VARIABLES =====
 let stockChart = null;
