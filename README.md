@@ -99,7 +99,7 @@ Get a quick overview of your financial performance:
 ```
 .
 ├── models/             # Mongoose schemas (User.js, Trade.js, Broker.js)
-├── routes/             # Express routes (auth.js, stocks.js, trades.js, dashboard.js, payment.js)
+├── routes/             # Express routes (auth.js, stocks.js, trades.js, dashboard.js, news.js)
 ├── views/              # EJS templates (login.ejs, dashboard.ejs, stocks.ejs, stock.ejs, history.ejs, brokers.ejs)
 ├── public/             # Static assets (css/, js/, images/)
 │   ├── css/            # CSS stylesheets
