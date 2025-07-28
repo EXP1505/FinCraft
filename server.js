@@ -96,6 +96,9 @@ app.get('/', (req, res) => {
   }
 });
 
+app.get('/test-session', (req, res) => {
+  res.send(req.session.user ? `Logged in as ${req.session.user.email}` : 'Not logged in');
+});
 
 app.get('/stock/:symbol', (req, res) => {
   res.redirect(`/stocks/${req.params.symbol}`);
