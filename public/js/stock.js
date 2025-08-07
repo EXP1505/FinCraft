@@ -370,150 +370,187 @@ function setupChartControls() {
 
 // ===== TRADING SIMULATION =====
 
-/**
- * Setup trading form
- */
-function setupTradingForm() {
+// Execute trade with correct endpoint
+async function executeTrade(tradeData, form) {
+    const button = form.querySelector('button[type="submit"]');
+    const originalText = button.innerHTML;
+    
+    try {
+        // Show loading state
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        button.disabled = true;
+
+        console.log('Executing trade:', tradeData);
+
+        // FIXED: Use the correct endpoint that matches your backend route
+        const response = await fetch(`/stocks/${stockSymbol}/trade`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(tradeData)
+        });
+
+        // Check if response is ok
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Trade response:', result);
+
+        if (result.success) {
+            showAlert(result.message || 'Trade executed successfully!', 'success');
+            form.reset();
+            
+            // Reset totals
+            const buyTotal = document.getElementById('buyTotal');
+            const sellTotal = document.getElementById('sellTotal');
+            if (buyTotal) buyTotal.textContent = '$0.00';
+            if (sellTotal) sellTotal.textContent = '$0.00';
+            
+            // Reload trades
+            await loadStockTrades();
+            
+        } else {
+            showAlert(result.error || 'Trade execution failed', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Trade execution error:', error);
+        showAlert(`Error: ${error.message}`, 'error');
+    } finally {
+        // Restore button state
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }
+}
+
+// FIXED: Load stock trades with correct endpoint
+async function loadStockTrades() {
+    try {
+        // FIXED: Use the correct endpoint that matches your backend route
+        const response = await fetch(`/stocks/trades/stock/${stockSymbol}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const trades = await response.json();
+        
+        const tradesContainer = document.getElementById('stockTrades');
+        if (!tradesContainer) return;
+        
+        if (!trades || trades.length === 0) {
+            tradesContainer.innerHTML = '<div class="no-trades"><p>No trades yet for this stock.</p></div>';
+            return;
+        }
+        
+        tradesContainer.innerHTML = trades.map(trade => `
+            <div class="trade-item">
+                <div class="trade-details">
+                    <span class="trade-type ${trade.type.toLowerCase()}">${trade.type.toUpperCase()}</span>
+                    <span class="trade-quantity">${trade.quantity} shares</span>
+                    <span class="trade-price">$${trade.price.toFixed(2)}</span>
+                    <span class="trade-total">$${trade.totalAmount.toFixed(2)}</span>
+                </div>
+                <div class="trade-result">
+                    <span class="trade-profit ${(trade.profitLoss || 0) >= 0 ? 'profit' : 'loss'}">
+                        ${(trade.profitLoss || 0) >= 0 ? '+' : ''}$${(trade.profitLoss || 0).toFixed(2)}
+                    </span>
+                    <span class="trade-date">
+                        ${new Date(trade.tradeDate).toLocaleDateString()}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading trades:', error);
+        const tradesContainer = document.getElementById('stockTrades');
+        if (tradesContainer) {
+            tradesContainer.innerHTML = '<div class="no-trades"><p>Unable to load trades.</p></div>';
+        }
+    }
+}
+
+// FIXED: Setup trade form handlers with proper validation
+function setupTradeForms() {
     const buyForm = document.getElementById('buyForm');
     const sellForm = document.getElementById('sellForm');
-    
+
     if (buyForm) {
-        buyForm.addEventListener('submit', handleBuyTrade);
+        buyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            const tradeData = {
+                type: 'BUY', // FIXED: Use uppercase to match backend
+                quantity: parseInt(formData.get('quantity')),
+                notes: formData.get('notes') || ''
+            };
+
+            if (!tradeData.quantity || tradeData.quantity <= 0) {
+                showAlert('Please enter a valid quantity', 'error');
+                return;
+            }
+
+            executeTrade(tradeData, this);
+        });
     }
-    
+
     if (sellForm) {
-        sellForm.addEventListener('submit', handleSellTrade);
-    }
-    
-    // Update total cost when quantity changes
-    const quantityInputs = document.querySelectorAll('input[name="quantity"]');
-    quantityInputs.forEach(input => {
-        input.addEventListener('input', updateTotalCost);
-    });
-}
+        sellForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            const tradeData = {
+                type: 'SELL', // FIXED: Use uppercase to match backend
+                quantity: parseInt(formData.get('quantity')),
+                notes: formData.get('notes') || ''
+            };
 
-/**
- * Handle buy trade simulation
- * @param {Event} e - Form submit event
- */
-async function handleBuyTrade(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const quantity = parseInt(formData.get('quantity'));
-    
-    if (!quantity || quantity <= 0) {
-        StockSage.showError('Please enter a valid quantity');
-        return;
-    }
-    
-    if (!currentQuote) {
-        StockSage.showError('Unable to get current price');
-        return;
-    }
-    
-    try {
-        const tradeData = {
-            symbol: currentSymbol,
-            type: 'buy',
-            quantity: quantity,
-            price: currentQuote.c,
-            timestamp: new Date().toISOString()
-        };
-        
-        const response = await fetch('/api/trades', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tradeData)
+            if (!tradeData.quantity || tradeData.quantity <= 0) {
+                showAlert('Please enter a valid quantity', 'error');
+                return;
+            }
+
+            executeTrade(tradeData, this);
         });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            StockSage.showSuccess(`Successfully bought ${quantity} shares of ${currentSymbol}!`);
-            e.target.reset();
-            updateTotalCost();
-        } else {
-            throw new Error(result.message || 'Trade failed');
-        }
-        
-    } catch (error) {
-        console.error('Buy trade error:', error);
-        StockSage.showError('Failed to execute buy order');
     }
 }
 
-/**
- * Handle sell trade simulation
- * @param {Event} e - Form submit event
- */
-async function handleSellTrade(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const quantity = parseInt(formData.get('quantity'));
-    
-    if (!quantity || quantity <= 0) {
-        StockSage.showError('Please enter a valid quantity');
-        return;
-    }
-    
-    if (!currentQuote) {
-        StockSage.showError('Unable to get current price');
-        return;
-    }
-    
+// FIXED: Debug function to check authentication
+async function checkAuth() {
     try {
-        const tradeData = {
-            symbol: currentSymbol,
-            type: 'sell',
-            quantity: quantity,
-            price: currentQuote.c,
-            timestamp: new Date().toISOString()
-        };
-        
-        const response = await fetch('/api/trades', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tradeData)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            StockSage.showSuccess(`Successfully sold ${quantity} shares of ${currentSymbol}!`);
-            e.target.reset();
-            updateTotalCost();
-        } else {
-            throw new Error(result.message || 'Trade failed');
-        }
-        
+        const response = await fetch('/test-session');
+        const text = await response.text();
+        console.log('Auth status:', text);
+        return text.includes('Logged in');
     } catch (error) {
-        console.error('Sell trade error:', error);
-        StockSage.showError('Failed to execute sell order');
+        console.error('Auth check failed:', error);
+        return false;
     }
 }
 
-/**
- * Update total cost display
- */
-function updateTotalCost() {
-    const quantityInputs = document.querySelectorAll('input[name="quantity"]');
-    
-    quantityInputs.forEach(input => {
-        const quantity = parseInt(input.value) || 0;
-        const totalElement = input.closest('form').querySelector('.total-cost');
-        
-        if (totalElement && currentQuote) {
-            const total = quantity * currentQuote.c;
-            totalElement.textContent = `Total: ${StockSage.formatPrice(total)}`;
-        }
-    });
+// ENHANCED: Initialize with auth check
+async function initializeStockPage() {
+    // Check if user is authenticated
+    const isAuthenticated = await checkAuth();
+    if (!isAuthenticated) {
+        showAlert('Please log in to trade', 'error');
+        return;
+    }
+
+    setupTradeCalculators();
+    setupTradeForms();
+    setupChartControls();
+    initializeChart();
+    await loadStockTrades(); // Load existing trades
+    setupWatchlistButton();
 }
+
 
 // ===== WATCHLIST FUNCTIONALITY =====
 

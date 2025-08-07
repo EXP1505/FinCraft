@@ -73,13 +73,11 @@ router.get('/', async (req, res) => {
     
     const stocks = await Promise.all(stockPromises);
 
-    // Get user's watchlist
-    const userId = req.session.user.id || req.session.user._id;
+    // Get user's watchlist with consistent user ID
+    const userId = req.session.user._id || req.session.user.id;
     const user = await User.findById(userId).select('watchlist');
-    const watchlistRaw = user.watchlist || [];
-    const axios = require('axios');
-    const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
-    const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
+    const watchlistRaw = user?.watchlist || [];
+    
     const watchlist = await Promise.all(watchlistRaw.map(async (item) => {
       try {
         const quote = await finnhubRequest('/quote', { symbol: item.symbol });
@@ -168,10 +166,10 @@ router.get('/search', async (req, res) => {
 
     const stocks = await Promise.all(stockPromises);
 
-    // Get user's watchlist
-    const userId = req.session.user.id;
+    // Get user's watchlist with consistent user ID
+    const userId = req.session.user._id || req.session.user.id;
     const user = await User.findById(userId).select('watchlist');
-    const watchlist = user.watchlist || [];
+    const watchlist = user?.watchlist || [];
 
     res.render('stocks', {
       title: `Search Results: ${query} - Fincraft`,
@@ -190,11 +188,32 @@ router.get('/search', async (req, res) => {
   }
 });
 
+// GET /stocks/trades/stock/:symbol - Get trades for specific stock
+router.get('/trades/stock/:symbol', async (req, res) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    const userId = req.session.user._id || req.session.user.id;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    const trades = await Trade.find({ userId, symbol })
+      .sort({ tradeDate: -1 })
+      .lean();
+    
+    res.json(trades);
+  } catch (error) {
+    console.error('Error fetching stock trades:', error);
+    res.status(500).json({ error: 'Unable to fetch trades' });
+  }
+});
+
 // GET /stocks/:symbol - Individual stock page
 router.get('/:symbol', async (req, res) => {
   try {
     const symbol = req.params.symbol.toUpperCase();
-    const userId = req.session.user.id;
+    const userId = req.session.user._id || req.session.user.id;
 
     console.log(`Fetching data for symbol: ${symbol}`);
 
@@ -247,7 +266,13 @@ router.get('/:symbol', async (req, res) => {
         totalInvestment += trade.totalAmount;
       } else {
         totalShares -= trade.quantity;
-        totalInvestment -= (trade.quantity * (totalInvestment / totalShares));
+        // Fix: Better calculation for sell impact on investment
+        if (totalShares > 0) {
+          const avgPrice = totalInvestment / (totalShares + trade.quantity);
+          totalInvestment -= (trade.quantity * avgPrice);
+        } else {
+          totalInvestment = 0;
+        }
       }
     });
 
@@ -258,7 +283,7 @@ router.get('/:symbol', async (req, res) => {
 
     // Check if in watchlist
     const user = await User.findById(userId).select('watchlist');
-    const inWatchlist = user.watchlist.some(item => item.symbol === symbol);
+    const inWatchlist = user?.watchlist?.some(item => item.symbol === symbol) || false;
 
     // Prepare stock object for template
     const stockData = {
@@ -353,8 +378,10 @@ router.get('/:symbol/chart', async (req, res) => {
 router.post('/:symbol/trade', async (req, res) => {
   try {
     const symbol = req.params.symbol.toUpperCase();
-    const userId = req.session.user.id;
+    const userId = req.session.user._id || req.session.user.id;
     const { type, quantity, notes } = req.body;
+
+    console.log('Trade request:', { symbol, userId, type, quantity });
 
     // Validate input
     if (!type || !quantity || quantity <= 0) {
@@ -364,56 +391,114 @@ router.post('/:symbol/trade', async (req, res) => {
       });
     }
 
-    // Get current stock price
-    const [quote, profile] = await Promise.all([
-      finnhubRequest('/quote', { symbol }),
-      finnhubRequest('/stock/profile2', { symbol })
-    ]);
+    // Validate user session
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+    }
+
+    // Get current stock price with better error handling
+    let quote, profile;
+    try {
+      [quote, profile] = await Promise.all([
+        finnhubRequest('/quote', { symbol }),
+        finnhubRequest('/stock/profile2', { symbol })
+      ]);
+    } catch (apiError) {
+      console.error('API Error:', apiError);
+      return res.status(500).json({
+        success: false,
+        error: 'Unable to fetch current stock price'
+      });
+    }
     
+    if (!quote || !quote.c || quote.c <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid stock price data'
+      });
+    }
+
     const currentPrice = quote.c;
     const totalAmount = currentPrice * parseInt(quantity);
 
+    // For SELL trades, check if user has enough shares
+    if (type.toUpperCase() === 'SELL') {
+      const userTrades = await Trade.find({ userId, symbol });
+      let totalShares = 0;
+      
+      userTrades.forEach(trade => {
+        if (trade.type === 'BUY') {
+          totalShares += trade.quantity;
+        } else if (trade.type === 'SELL') {
+          totalShares -= trade.quantity;
+        }
+      });
+
+      if (totalShares < parseInt(quantity)) {
+        return res.status(400).json({
+          success: false,
+          error: `Insufficient shares. You own ${totalShares} shares.`
+        });
+      }
+    }
+
     // Create trade record
-    const trade = new Trade({
+    const tradeData = {
       userId,
       symbol,
-      companyName: profile.name || symbol,
+      companyName: profile?.name || symbol,
       type: type.toUpperCase(),
       quantity: parseInt(quantity),
       price: currentPrice,
       totalAmount,
-      notes: notes || ''
-    });
+      notes: notes || '',
+      tradeDate: new Date()
+    };
 
     // If selling, calculate profit/loss
     if (type.toUpperCase() === 'SELL') {
-      // Get user's buy trades for this stock to calculate profit/loss
-      const buyTrades = await Trade.find({
-        userId,
-        symbol,
-        type: 'BUY'
-      }).sort({ tradeDate: 1 });
+      try {
+        // Get user's buy trades for this stock to calculate profit/loss
+        const buyTrades = await Trade.find({
+          userId,
+          symbol,
+          type: 'BUY'
+        }).sort({ tradeDate: 1 });
 
-      // Calculate average buy price (FIFO method)
-      let remainingShares = parseInt(quantity);
-      let totalCost = 0;
-      
-      for (const buyTrade of buyTrades) {
-        if (remainingShares <= 0) break;
-        
-        const sharesToUse = Math.min(remainingShares, buyTrade.quantity);
-        totalCost += sharesToUse * buyTrade.price;
-        remainingShares -= sharesToUse;
+        if (buyTrades.length > 0) {
+          // Calculate average buy price (FIFO method)
+          let remainingShares = parseInt(quantity);
+          let totalCost = 0;
+          
+          for (const buyTrade of buyTrades) {
+            if (remainingShares <= 0) break;
+            
+            const sharesToUse = Math.min(remainingShares, buyTrade.quantity);
+            totalCost += sharesToUse * buyTrade.price;
+            remainingShares -= sharesToUse;
+          }
+
+          if (totalCost > 0) {
+            const avgBuyPrice = totalCost / parseInt(quantity);
+            tradeData.buyPrice = avgBuyPrice;
+            tradeData.sellPrice = currentPrice;
+            tradeData.profitLoss = (currentPrice - avgBuyPrice) * parseInt(quantity);
+            tradeData.profitLossPercentage = ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100;
+          }
+        }
+      } catch (plError) {
+        console.error('Error calculating P&L:', plError);
+        // Continue without P&L calculation
       }
-
-      const avgBuyPrice = totalCost / parseInt(quantity);
-      trade.buyPrice = avgBuyPrice;
-      trade.sellPrice = currentPrice;
-      trade.profitLoss = (currentPrice - avgBuyPrice) * parseInt(quantity);
-      trade.profitLossPercentage = ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100;
     }
 
+    const trade = new Trade(tradeData);
     await trade.save();
+
+    console.log('Trade saved successfully:', trade._id);
 
     res.json({
       success: true,
@@ -425,7 +510,7 @@ router.post('/:symbol/trade', async (req, res) => {
         quantity: trade.quantity,
         price: trade.price,
         totalAmount: trade.totalAmount,
-        profitLoss: trade.profitLoss
+        profitLoss: trade.profitLoss || 0
       }
     });
 
@@ -433,7 +518,7 @@ router.post('/:symbol/trade', async (req, res) => {
     console.error('Trade execution error:', error);
     res.status(500).json({
       success: false,
-      error: 'Unable to execute trade'
+      error: 'Unable to execute trade: ' + error.message
     });
   }
 });

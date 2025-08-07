@@ -112,6 +112,66 @@
         </div>
     </section>
 
+    <section class="recent-trades-section">
+        <div class="section-header">
+            <h2>Recent Trades</h2>
+            <a href="/trades" class="view-all-btn">View All Trades</a>
+        </div>
+        <div class="recent-trades">
+            <% if (recentTrades && recentTrades.length > 0) { %>
+                <div class="trades-table-wrapper">
+                    <table class="trades-table">
+                        <thead>
+                            <tr>
+                                <th>Stock</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                                <th>P&L</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentTrades.forEach(trade => { %>
+                            <tr class="trade-row">
+                                <td>
+                                    <div class="trade-stock">
+                                        <strong><%= trade.symbol %></strong>
+                                        <small><%= trade.companyName %></small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="trade-type <%= trade.type.toLowerCase() %>">
+                                        <%= trade.type %>
+                                    </span>
+                                </td>
+                                <td><%= trade.quantity %></td>
+                                <td>$<%= trade.price.toFixed(2) %></td>
+                                <td>$<%= trade.totalAmount.toFixed(2) %></td>
+                                <td>
+                                    <span class="trade-pl <%= (trade.profitLoss || 0) >= 0 ? 'profit' : 'loss' %>">
+                                        <%= (trade.profitLoss || 0) >= 0 ? '+' : '' %>$<%= (trade.profitLoss || 0).toFixed(2) %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <small><%= new Date(trade.tradeDate).toLocaleDateString() %></small>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="no-trades">
+                    <i class="fas fa-chart-line"></i>
+                    <p>No trades yet. Start trading to see your activity here!</p>
+                    <a href="/stocks" class="btn btn-primary">Browse Stocks</a>
+                </div>
+            <% } %>
+        </div>
+    </section>
+    
     <!-- Watchlist -->
     <section class="watchlist-section">
         <div class="section-header">
