@@ -163,21 +163,22 @@ router.get('/', async (req, res) => {
     }
 
     res.render('dashboard', {
-      title: 'Dashboard - Fincraft',
-      analytics: analytics_data.allTime,
-      year: analytics_data.year,
-      month: analytics_data.month,
-      week: analytics_data.week,
-      today: analytics_data.today,
-      recentTrades: recentTrades || [],
-      popularStocks: popularStocks || [],
-      watchlist: watchlist || [],
-      monthlyPerformance: monthlyPerformance || [],
-      topPerformers: topPerformers || [],
-      worstPerformers: worstPerformers || [],
-      formatCurrency: analytics.formatCurrency || ((val) => `$${val.toFixed(2)}`),
-      formatPercentage: analytics.formatPercentage || ((val) => `${val.toFixed(2)}%`)
-    });
+    title: 'Dashboard - Fincraft',
+    analytics: analytics_data.allTime,
+    year: analytics_data.year,
+    month: analytics_data.month,
+    week: analytics_data.week,
+    today: analytics_data.today,
+    recentTrades: recentTrades || [],
+    popularStocks: popularStocks || [],
+    watchlist: watchlist || [],
+    monthlyPerformance: monthlyPerformance || [],
+    topPerformers: topPerformers || [],
+    worstPerformers: worstPerformers || [],
+    news: newsData, // ADD THIS LINE
+    formatCurrency: analytics.formatCurrency || ((val) => `$${val.toFixed(2)}`),
+    formatPercentage: analytics.formatPercentage || ((val) => `${val.toFixed(2)}%`)
+  });
 
   } catch (error) {
     console.error('Dashboard error:', error);
