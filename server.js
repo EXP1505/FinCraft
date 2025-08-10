@@ -6,6 +6,8 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const apiRoutes = require('./routes/api');
+const newsRoutes = require('./routes/news');
+const profileRoutes = require('./routes/profile');
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 
 // const express = require('express');
@@ -79,9 +81,7 @@ app.use('/stocks', authMiddleware.requireAuth, stocksRoutes);
 app.use('/trades', authMiddleware.requireAuth, tradesRoutes);
 app.use('/brokers', authMiddleware.requireAuth, brokersRoutes);
 app.use('/search', authMiddleware.requireAuth, searchRoutes);
-const newsRoutes = require('./routes/news');
 app.use('/news', newsRoutes);
-const profileRoutes = require('./routes/profile');
 app.use('/profile', profileRoutes);
 
 // Home route - redirect to dashboard if logged in, otherwise show landing page

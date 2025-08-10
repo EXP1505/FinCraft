@@ -11,13 +11,13 @@
         <div class="error-container">
             <h1 class="mb-4">Error</h1>
             <div class="alert alert-danger">
-                <p class="mb-1"><strong><%= message %></strong></p>
-                <% if (error && error.status) { %>
+                <p class="mb-1"><strong><%= message || 'An unexpected error occurred' %></strong></p>
+                <% if (typeof error !== 'undefined' && error && error.status) { %>
                     <p class="mb-1">Status Code: <%= error.status %></p>
                 <% } %>
             </div>
             
-            <% if (error.stack && process.env.NODE_ENV !== 'production') { %>
+            <% if (typeof error !== 'undefined' && error && error.stack && process.env.NODE_ENV !== 'production') { %>
                 <pre class="error-stack p-3 bg-light"><%= error.stack %></pre>
             <% } %>
             

@@ -455,11 +455,11 @@ newsSection.addEventListener('mouseleave', startAutoScroll);
 document.addEventListener('DOMContentLoaded', initializeNews);
 
 // Make news data available globally
-<% if (typeof news !== 'undefined' && news.length > 0) { %>
-    var newsFromBackend = <%- JSON.stringify(news.slice(0, 10)) %>;
-<% } else { %>
-    var newsFromBackend = [];
-<% } %>
+// <% if (typeof news !== 'undefined' && news.length > 0) { %>
+//     var newsFromBackend = <%- JSON.stringify(news.slice(0, 10)) %>;
+// <% } else { %>
+//     var newsFromBackend = [];
+// <% } %>
 </script>
 
 <%- include('partials/footer') %>

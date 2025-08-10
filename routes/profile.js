@@ -40,28 +40,43 @@ router.get('/', requireAuth, async (req, res) => {
     });
     try {
         // Since requireAuth middleware already fetches the user, we can use req.user
-        const user = req.user || await User.findById(req.session.user.id);
+        const user = req.user || await User.findById(req.session.user.id||req.session.user._id);
         
         // Get user statistics - Fixed: Use req.session.user.id
-        const stats = await getUserStats(req.session.user.id);
+        const stats = await getUserStats(req.session.user.id||req.session.user._id);
         
         // Get recent trades (last 10) - Fixed: Use req.session.user.id
-        const recentTrades = await Trade.find({ userId: req.session.user.id })
-            .sort({ date: -1 })
+        const userId = req.session.user._id || req.session.user.id;
+
+        if (!userId) {
+            return res.redirect('/login');
+        }
+
+        // FIXED: Actually fetch the recent trades
+        const recentTrades = await Trade.find({ userId })
+            .sort({ tradeDate: -1 })
             .limit(10)
             .lean();
+
+        console.log(`Found ${recentTrades.length} recent trades for user ${userId}`);
+        
+        // Debug: Log the structure of the first trade to understand the data format
+        if (recentTrades.length > 0) {
+            console.log('Sample trade structure:', JSON.stringify(recentTrades[0], null, 2));
+        }
 
         res.render('profile', {
             user,
             stats,
-            recentTrades,
+            recentTrades, // This was missing before
             title: 'Profile - Fincraft'
         });
     } catch (error) {
         console.error('Error loading profile:', error);
         res.status(500).render('error', { 
             message: 'Error loading profile page',
-            title: 'Error - Fincraft'
+            title: 'Error - Fincraft',
+            error: process.env.NODE_ENV === 'development' ? error : {} // FIXED: Added error object
         });
     }
 });
@@ -272,7 +287,8 @@ router.post('/delete', requireAuth, async (req, res) => {
         console.error('Error deleting account:', error);
         res.status(500).render('error', {
             message: 'Error deleting account. Please try again.',
-            title: 'Error - Fincraft'
+            title: 'Error - Fincraft',
+            error: process.env.NODE_ENV === 'development' ? error : {} // FIXED: Added error object
         });
     }
 });

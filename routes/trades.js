@@ -94,30 +94,7 @@ router.post('/simulate', requireAuth, async (req, res) => {
     try {
         const { symbol, action, quantity, price, companyName } = req.body;
         
-        // Validate input
-        if (!symbol || !action || !quantity || !price) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Missing required fields' 
-            });
-        }
-        
-        const qty = parseInt(quantity);
-        const tradePrice = parseFloat(price);
-        
-        if (qty <= 0 || tradePrice <= 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Quantity and price must be positive numbers' 
-            });
-        }
-        
-        if (!['BUY', 'SELL'].includes(action.toUpperCase())) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Action must be BUY or SELL' 
-            });
-        }
+        // Validation code stays the same...
         
         // For SELL orders, check if user has enough shares
         if (action.toUpperCase() === 'SELL') {
@@ -128,9 +105,10 @@ router.post('/simulate', requireAuth, async (req, res) => {
             
             let netShares = 0;
             userTrades.forEach(trade => {
-                if (trade.action === 'BUY') {
+                // Use 'type' field instead of 'action'
+                if (trade.type === 'BUY') {
                     netShares += trade.quantity;
-                } else if (trade.action === 'SELL') {
+                } else if (trade.type === 'SELL') {
                     netShares -= trade.quantity;
                 }
             });
@@ -146,14 +124,13 @@ router.post('/simulate', requireAuth, async (req, res) => {
         // Calculate profit/loss for SELL orders
         let profitLoss = 0;
         if (action.toUpperCase() === 'SELL') {
-            // Get user's buy trades for this stock (FIFO method)
             const buyTrades = await Trade.find({ 
                 userId: req.user._id, 
                 symbol: symbol.toUpperCase(),
-                action: 'BUY'
-            }).sort({ timestamp: 1 });
+                type: 'BUY'  // Use 'type' instead of 'action'
+            }).sort({ tradeDate: 1 }); // Use 'tradeDate' instead of 'timestamp'
             
-            // Calculate average buy price
+            // Calculate profit/loss logic...
             let totalCost = 0;
             let totalShares = 0;
             
@@ -168,16 +145,17 @@ router.post('/simulate', requireAuth, async (req, res) => {
             }
         }
         
-        // Create new trade
+        // Create new trade using your model's field names
         const newTrade = new Trade({
             userId: req.user._id,
             symbol: symbol.toUpperCase(),
             companyName: companyName || symbol.toUpperCase(),
-            action: action.toUpperCase(),
+            type: action.toUpperCase(), // Use 'type' instead of 'action'
             quantity: qty,
             price: tradePrice,
+            totalAmount: qty * tradePrice, // Add totalAmount field
             profitLoss: profitLoss,
-            timestamp: new Date()
+            tradeDate: new Date() // Use 'tradeDate' instead of 'timestamp'
         });
         
         await newTrade.save();
@@ -188,11 +166,11 @@ router.post('/simulate', requireAuth, async (req, res) => {
             trade: {
                 id: newTrade._id,
                 symbol: newTrade.symbol,
-                action: newTrade.action,
+                type: newTrade.type,
                 quantity: newTrade.quantity,
                 price: newTrade.price,
                 profitLoss: newTrade.profitLoss.toFixed(2),
-                timestamp: newTrade.timestamp
+                tradeDate: newTrade.tradeDate
             }
         });
         

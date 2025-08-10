@@ -175,7 +175,7 @@ router.get('/', async (req, res) => {
     monthlyPerformance: monthlyPerformance || [],
     topPerformers: topPerformers || [],
     worstPerformers: worstPerformers || [],
-    news: newsData, // ADD THIS LINE
+    // news: newsData, // ADD THIS LINE-
     formatCurrency: analytics.formatCurrency || ((val) => `$${val.toFixed(2)}`),
     formatPercentage: analytics.formatPercentage || ((val) => `${val.toFixed(2)}%`)
   });
@@ -186,6 +186,39 @@ router.get('/', async (req, res) => {
       title: 'Error - Fincraft',
       message: 'Unable to load dashboard data',
       error: process.env.NODE_ENV === 'development' ? error : {}
+    });
+  }
+});
+
+router.get('/api/fetch', async (req, res) => {
+  try {
+    const { category = 'general', symbol, from, to } = req.query;
+    
+    let apiPath;
+    const queryParams = new URLSearchParams();
+    
+    if (symbol) {
+      // Redirect to stock-specific API endpoint
+      apiPath = `/api/news/${symbol.toUpperCase()}`;
+      if (from) queryParams.append('from', from);
+      if (to) queryParams.append('to', to);
+    } else {
+      // Redirect to general news API endpoint
+      apiPath = '/api/news';
+      queryParams.append('category', category);
+    }
+    
+    const queryString = queryParams.toString();
+    const fullUrl = `${req.protocol}://${req.get('host')}${apiPath}${queryString ? '?' + queryString : ''}`;
+    
+    const response = await fetch(fullUrl);
+    const result = await response.json();
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 });
