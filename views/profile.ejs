@@ -56,8 +56,8 @@
                 </h5>
                 <div class="row">
                     <div class="col-6 summary-metric">
-                        <div class="metric-value <%= (stats.totalProfit || 0) >= 0 ? 'metric-positive' : 'metric-negative' %>">
-                            $<%= Math.abs(stats.totalProfit || 0).toLocaleString() %>
+                        <div class="metric-value <%= (stats.totalProfitLoss || 0) >= 0 ? 'metric-positive' : 'metric-negative' %>">
+                            $<%= Math.abs(stats.totalProfitLoss || 0).toLocaleString() %>
                         </div>
                         <div class="metric-label">Total P&L</div>
                     </div>
@@ -152,31 +152,28 @@
             </div>
 
             <!-- Recent Activity -->
-            <div class="card-shadow-recent mt-4">
-                <div class="card-header-recent text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-history me-2"></i>
-                        Recent Activity
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="recent-activity text-white">
+            <div class="recent-activity text-white">
                         <% if (recentTrades && recentTrades.length > 0) { %>
                             <% recentTrades.forEach(trade => { %>
                                 <div class="activity-item">
-                                    <div class="activity-icon activity-<%= trade.type %>">
-                                        <i class="fas fa-<%= trade.type === 'buy' ? 'arrow-up' : 'arrow-down' %>"></i>
+                                    <div class="activity-icon activity-<%= trade.type || trade.tradeType || 'buy' %>">
+                                        <i class="fas fa-<%= (trade.type || trade.tradeType) === 'buy' ? 'arrow-up' : 'arrow-down' %>"></i>
                                     </div>
                                     <div class="activity-content flex-grow-1">
-                                        <h6><%= trade.type.toUpperCase() %> <%= trade.symbol %></h6>
+                                        <h6><%= (trade.type || trade.tradeType || 'BUY').toUpperCase() %> <%= trade.symbol || trade.stockSymbol || 'N/A' %></h6>
                                         <small class="text-muted">
-                                            <%= trade.quantity %> shares at $<%= trade.price %> • 
-                                            <%= new Date(trade.date).toLocaleDateString() %>
+                                            <%= trade.quantity || trade.shares || 0 %> shares at $<%= (trade.price || trade.tradePrice || 0).toFixed(2) %> • 
+                                            <%= new Date(trade.date || trade.tradeDate || Date.now()).toLocaleDateString() %>
                                         </small>
                                     </div>
                                     <div class="text-end">
-                                        <span class="badge bg-<%= trade.profit >= 0 ? 'success' : 'danger' %>">
-                                            <%= trade.profit >= 0 ? '+' : '' %>$<%= trade.profit.toFixed(2) %>
+                                        <% 
+                                            // Handle different profit property names and ensure it's a number
+                                            let profitValue = trade.profit || trade.profitLoss || trade.netProfit || 0;
+                                            profitValue = typeof profitValue === 'number' ? profitValue : 0;
+                                        %>
+                                        <span class="badge bg-<%= profitValue >= 0 ? 'success' : 'danger' %>">
+                                            <%= profitValue >= 0 ? '+' : '' %>$<%= profitValue.toFixed(2) %>
                                         </span>
                                     </div>
                                 </div>
@@ -189,8 +186,6 @@
                             </div>
                         <% } %>
                     </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

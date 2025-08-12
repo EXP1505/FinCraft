@@ -2,7 +2,7 @@
 <%- include('partials/navbar') %>
 <link rel="stylesheet" href="/css/dashboard.css">
 <div class="container">
-    <!-- Search Section -->
+    <!-- Popular Stocks Section (unchanged) -->
     <section class="moving-stocks">
         <h2>Popular Stocks</h2>
         <div class="stocks-grid">
@@ -47,6 +47,100 @@
                 </div>
                 <% }) %>
             <%}%>
+        </div>
+    </section>
+
+    <!-- News and Recent Trades Section -->
+    <section class="news-trades-container">
+        <!-- News Section (Left) -->
+        <div class="news-section">
+            <div class="news-header">
+                <h2>Latest Market News</h2>
+                <div class="news-controls">
+                    <button class="nav-btn" id="prev-news" aria-label="Previous news">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="news-counter">
+                        <span id="current-news">1</span> / <span id="total-news">10</span>
+                    </span>
+                    <button class="nav-btn" id="next-news" aria-label="Next news">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="news-carousel">
+                <div class="news-item active" id="news-container">
+                    <!-- News content will be loaded here -->
+                    <div class="loading-news">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading latest news...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="news-progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Recent Trades Section (Right) -->
+        <div class="recent-trades-section">
+            <div class="section-header">
+                <h2>Recent Trades</h2>
+                <a href="/history" class="view-all-btn">View All</a>
+            </div>
+            <div class="recent-trades">
+                <% if (recentTrades && recentTrades.length > 0) { %>
+                    <div class="trades-table-wrapper">
+                        <table class="trades-table">
+                            <thead>
+                                <tr>
+                                    <th>Stock</th>
+                                    <th>Type</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>P&L</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentTrades.slice(0, 8).forEach(trade => { %>
+                                <tr class="trade-row">
+                                    <td>
+                                        <div class="trade-stock">
+                                            <strong><%= trade.symbol %></strong>
+                                            <small><%= trade.companyName %></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="trade-type <%= trade.type.toLowerCase() %>">
+                                            <%= trade.type %>
+                                        </span>
+                                    </td>
+                                    <td><%= trade.quantity %></td>
+                                    <td>$<%= trade.price.toFixed(2) %></td>
+                                    <td>
+                                        <span class="trade-pl <%= (trade.profitLoss || 0) >= 0 ? 'profit' : 'loss' %>">
+                                            <%= (trade.profitLoss || 0) >= 0 ? '+' : '' %>$<%= (trade.profitLoss || 0).toFixed(2) %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small><%= new Date(trade.tradeDate).toLocaleDateString() %></small>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="no-trades">
+                        <i class="fas fa-chart-line"></i>
+                        <p>No trades yet. Start trading to see your activity here!</p>
+                        <a href="/stocks" class="btn btn-primary">Browse Stocks</a>
+                    </div>
+                <% } %>
+            </div>
         </div>
     </section>
 
@@ -111,66 +205,6 @@
             </div>
         </div>
     </section>
-
-    <section class="recent-trades-section">
-        <div class="section-header">
-            <h2>Recent Trades</h2>
-            <a href="/trades" class="view-all-btn">View All Trades</a>
-        </div>
-        <div class="recent-trades">
-            <% if (recentTrades && recentTrades.length > 0) { %>
-                <div class="trades-table-wrapper">
-                    <table class="trades-table">
-                        <thead>
-                            <tr>
-                                <th>Stock</th>
-                                <th>Type</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Total</th>
-                                <th>P&L</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% recentTrades.forEach(trade => { %>
-                            <tr class="trade-row">
-                                <td>
-                                    <div class="trade-stock">
-                                        <strong><%= trade.symbol %></strong>
-                                        <small><%= trade.companyName %></small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="trade-type <%= trade.type.toLowerCase() %>">
-                                        <%= trade.type %>
-                                    </span>
-                                </td>
-                                <td><%= trade.quantity %></td>
-                                <td>$<%= trade.price.toFixed(2) %></td>
-                                <td>$<%= trade.totalAmount.toFixed(2) %></td>
-                                <td>
-                                    <span class="trade-pl <%= (trade.profitLoss || 0) >= 0 ? 'profit' : 'loss' %>">
-                                        <%= (trade.profitLoss || 0) >= 0 ? '+' : '' %>$<%= (trade.profitLoss || 0).toFixed(2) %>
-                                    </span>
-                                </td>
-                                <td>
-                                    <small><%= new Date(trade.tradeDate).toLocaleDateString() %></small>
-                                </td>
-                            </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            <% } else { %>
-                <div class="no-trades">
-                    <i class="fas fa-chart-line"></i>
-                    <p>No trades yet. Start trading to see your activity here!</p>
-                    <a href="/stocks" class="btn btn-primary">Browse Stocks</a>
-                </div>
-            <% } %>
-        </div>
-    </section>
     
     <!-- Watchlist -->
     <section class="watchlist-section">
@@ -204,4 +238,294 @@
         </div>
     </section>
 </div>
+
+<script>
+// News carousel functionality
+let currentNewsIndex = 0;
+let newsData = [];
+let autoScrollInterval;
+
+// Make news data available globally
+<% if (typeof news !== 'undefined' && news.length > 0) { %>
+    console.log('News data received from backend:', <%- JSON.stringify(news.length) %>);
+    var newsFromBackend = <%- JSON.stringify(news.slice(0, 10)) %>;
+<% } else { %>
+    console.log('No news data received from backend');
+    var newsFromBackend = [];
+<% } %>
+
+// Initialize news with real data from backend
+function initializeNews() {
+    console.log('Initializing news with backend data:', newsFromBackend);
+    
+    // Use news data passed from backend or fetch from API
+    if (typeof newsFromBackend !== 'undefined' && newsFromBackend.length > 0) {
+        newsData = newsFromBackend.slice(0, 10); // Limit to top 10 news
+        console.log('Using backend news data:', newsData.length, 'articles');
+    } else {
+        console.log('No backend news data, fetching from API...');
+        // Fallback: fetch news via API if not provided by backend
+        fetchNewsFromAPI();
+        return; // Exit early since fetchNewsFromAPI will handle the rest
+    }
+    
+    updateNewsDisplay();
+    updateCounter();
+    startAutoScroll();
+}
+
+// Fetch news from API (fallback method)
+async function fetchNewsFromAPI() {
+    try {
+        console.log('Fetching news from API...');
+        const response = await fetch('/api/news/general?limit=10');
+        const data = await response.json();
+        
+        console.log('API response:', data);
+        
+        if (data && data.success && data.data && data.data.length > 0) {
+            newsData = data.data;
+            console.log('Successfully fetched', newsData.length, 'articles from API');
+            updateNewsDisplay();
+            updateCounter();
+            startAutoScroll();
+        } else if (data && Array.isArray(data) && data.length > 0) {
+            // Handle direct array response
+            newsData = data;
+            console.log('Successfully fetched', newsData.length, 'articles from API (direct array)');
+            updateNewsDisplay();
+            updateCounter();
+            startAutoScroll();
+        } else {
+            console.log('No news data in API response');
+            showNoNewsMessage();
+        }
+    } catch (error) {
+        console.error('Failed to fetch news from API:', error);
+        showNoNewsMessage();
+    }
+}
+
+// Update news display
+function updateNewsDisplay() {
+    const newsContainer = document.getElementById('news-container');
+    
+    if (!newsContainer) {
+        console.error('News container not found');
+        return;
+    }
+    
+    const currentNews = newsData[currentNewsIndex];
+    
+    console.log('Updating news display. Current index:', currentNewsIndex, 'News item:', currentNews);
+    
+    if (currentNews) {
+        const imageHtml = currentNews.image ? 
+            `<div class="news-image-container">
+                <img src="${currentNews.image}" class="news-image" alt="${currentNews.headline || 'News image'}" 
+                     onerror="this.parentElement.style.display='none'">
+            </div>` : '';
+        
+        const categoryBadge = currentNews.category ? 
+            `<span class="category-badge">${currentNews.category}</span>` : '';
+            
+        newsContainer.innerHTML = `
+            <div class="news-content">
+                ${imageHtml}
+                <div class="news-text-content">
+                    <div class="news-meta">
+                        <span class="news-source">${currentNews.source || 'Unknown Source'}</span>
+                        ${categoryBadge}
+                        <span class="news-time">
+                            <i class="fas fa-clock"></i>
+                            ${formatNewsDate(currentNews.datetime)}
+                        </span>
+                    </div>
+                    <h3 class="news-headline">
+                        <a href="${currentNews.url || '#'}" target="_blank">${currentNews.headline || 'No headline available'}</a>
+                    </h3>
+                    <p class="news-summary">${currentNews.summary || 'No summary available.'}</p>
+                    <div class="news-actions">
+                        <a href="${currentNews.url || '#'}" target="_blank" class="read-more-btn">
+                            <i class="fas fa-external-link-alt"></i>
+                            Read Full Article
+                        </a>
+                        ${currentNews.related ? 
+                            `<span class="related-count">
+                                <i class="fas fa-link"></i>
+                                ${currentNews.related.split(',').length} related
+                            </span>` : ''
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        console.log('No current news item to display');
+        showNoNewsMessage();
+    }
+}
+
+// Format news date
+function formatNewsDate(datetime) {
+    if (!datetime) return 'Date unknown';
+    
+    try {
+        const date = new Date(datetime * 1000);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffHours / 24);
+        
+        if (diffHours < 1) {
+            const diffMinutes = Math.floor(diffMs / (1000 * 60));
+            return `${diffMinutes} minutes ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours} hours ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays} days ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Date unknown';
+    }
+}
+
+// Show no news message
+function showNoNewsMessage() {
+    const newsContainer = document.getElementById('news-container');
+    if (newsContainer) {
+        newsContainer.innerHTML = `
+            <div class="no-news-message">
+                <i class="fas fa-newspaper"></i>
+                <h4>No news available</h4>
+                <p>Unable to load news at this time. Please try again later.</p>
+                <button class="retry-btn" onclick="initializeNews()">
+                    <i class="fas fa-redo"></i> Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Update counter
+function updateCounter() {
+    const currentNewsEl = document.getElementById('current-news');
+    const totalNewsEl = document.getElementById('total-news');
+    
+    if (currentNewsEl && totalNewsEl) {
+        currentNewsEl.textContent = newsData.length > 0 ? currentNewsIndex + 1 : 0;
+        totalNewsEl.textContent = newsData.length;
+        console.log('Updated counter:', (currentNewsIndex + 1), '/', newsData.length);
+    }
+}
+
+// Next news
+function nextNews() {
+    if (newsData.length === 0) return;
+    currentNewsIndex = (currentNewsIndex + 1) % newsData.length;
+    updateNewsDisplay();
+    updateCounter();
+    resetProgress();
+}
+
+// Previous news
+function prevNews() {
+    if (newsData.length === 0) return;
+    currentNewsIndex = (currentNewsIndex - 1 + newsData.length) % newsData.length;
+    updateNewsDisplay();
+    updateCounter();
+    resetProgress();
+}
+
+// Start auto scroll
+function startAutoScroll() {
+    if (newsData.length <= 1) return; // Don't auto-scroll if only one or no news items
+    
+    resetProgress();
+    autoScrollInterval = setInterval(() => {
+        nextNews();
+    }, 10000);
+    
+    // Start progress bar animation
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+        progressBar.style.animation = 'none';
+        setTimeout(() => {
+            progressBar.style.animation = 'progressBarFill 10s linear infinite';
+        }, 10);
+    }
+}
+
+// Reset progress
+function resetProgress() {
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+        progressBar.style.animation = 'none';
+        setTimeout(() => {
+            progressBar.style.animation = 'progressBarFill 10s linear infinite';
+        }, 10);
+    }
+}
+
+// Stop auto scroll
+function stopAutoScroll() {
+    if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing news...');
+    
+    // Add event listeners for navigation buttons
+    const nextBtn = document.getElementById('next-news');
+    const prevBtn = document.getElementById('prev-news');
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            stopAutoScroll();
+            nextNews();
+            startAutoScroll();
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            stopAutoScroll();
+            prevNews();
+            startAutoScroll();
+        });
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            stopAutoScroll();
+            prevNews();
+            startAutoScroll();
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            stopAutoScroll();
+            nextNews();
+            startAutoScroll();
+        }
+    });
+
+    // Pause on hover
+    const newsSection = document.querySelector('.news-section');
+    if (newsSection) {
+        newsSection.addEventListener('mouseenter', stopAutoScroll);
+        newsSection.addEventListener('mouseleave', startAutoScroll);
+    }
+
+    // Initialize news
+    initializeNews();
+});
+</script>
+
 <%- include('partials/footer') %>
