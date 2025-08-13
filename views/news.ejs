@@ -326,6 +326,15 @@
             }
         });
     </script>
+    <link rel="stylesheet" href="/css/chatbot.css">
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <script type="module">
+        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+        createChat({
+            webhookUrl: '<%= process.env.WEBHOOK_URL %>'
+        });
+    </script>
 </body>
 <%- include('partials/footer') %>
 </html>

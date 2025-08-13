@@ -27,7 +27,7 @@ const searchRoutes = require('./routes/search');
 const authMiddleware = require('./middleware/authMiddleware');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Fincraft', {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -50,7 +50,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/Fincraft'
+    mongoUrl: process.env.MONGODB_URI
   }),
   cookie: {
     secure: false, // Set to true in production with HTTPS
