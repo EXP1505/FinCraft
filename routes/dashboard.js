@@ -170,8 +170,8 @@ router.get('/', async (req, res) => {
     let popularStocks = [];
     try {
       const popularStocksList = [
-        'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 
-        'META', 'NVDA', 'NFLX', 'JPM', 'V'
+        'GS', 'SNAP', 'MSFT', 'AMZN', 'BMW.HA', 'RS','BAC',
+        'LMT', 'NVDA', 'NFLX', 'JPM', 'V'
       ];
 
       const axios = require('axios');
