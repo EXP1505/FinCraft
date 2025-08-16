@@ -48,7 +48,7 @@ Get a quick overview of your financial performance:
   * **Financial News:** News that can effects the market and the ones that are popular among the people in the market is getting displayed with the help of finnhub API.
 
 ## ⚠️ Known Issues
-  * **Trade History Error After Trade:** When a trade is made from the individual stock page, the History page often responds with 0. I am working to fix this interaction.
+  * **Trade Summary not shown in the profile:** When a trade is made from the individual stock page, the Profile page often responds with 0. I am working to fix this interaction.
 
 ## 🚀 Getting Started
 
