@@ -150,42 +150,6 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Recent Activity -->
-            <div class="recent-activity text-white">
-                        <% if (recentTrades && recentTrades.length > 0) { %>
-                            <% recentTrades.forEach(trade => { %>
-                                <div class="activity-item">
-                                    <div class="activity-icon activity-<%= trade.type || trade.tradeType || 'buy' %>">
-                                        <i class="fas fa-<%= (trade.type || trade.tradeType) === 'buy' ? 'arrow-up' : 'arrow-down' %>"></i>
-                                    </div>
-                                    <div class="activity-content flex-grow-1">
-                                        <h6><%= (trade.type || trade.tradeType || 'BUY').toUpperCase() %> <%= trade.symbol || trade.stockSymbol || 'N/A' %></h6>
-                                        <small class="text-muted">
-                                            <%= trade.quantity || trade.shares || 0 %> shares at $<%= (trade.price || trade.tradePrice || 0).toFixed(2) %> • 
-                                            <%= new Date(trade.date || trade.tradeDate || Date.now()).toLocaleDateString() %>
-                                        </small>
-                                    </div>
-                                    <div class="text-end">
-                                        <% 
-                                            // Handle different profit property names and ensure it's a number
-                                            let profitValue = trade.profit || trade.profitLoss || trade.netProfit || 0;
-                                            profitValue = typeof profitValue === 'number' ? profitValue : 0;
-                                        %>
-                                        <span class="badge bg-<%= profitValue >= 0 ? 'success' : 'danger' %>">
-                                            <%= profitValue >= 0 ? '+' : '' %>$<%= profitValue.toFixed(2) %>
-                                        </span>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        <% } else { %>
-                            <div class="text-center py-4 text-white">
-                                <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i>
-                                <p>No trading activity yet. Start by exploring stocks!</p>
-                                <a href="/stocks" class="btn btn-primary">Browse Stocks</a>
-                            </div>
-                        <% } %>
-                    </div>
         </div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 /* Container */
 .container {
-    max-width: 1600px; /* Optimized for 1920px FHD display */
+    max-width: 1600px;
     margin: 0 auto;
     padding: 1.5rem;
 }
@@ -57,7 +57,7 @@
 /* Stock Card */
 .stock-card {
     position: relative; /* For glassy line effect */
-    background: rgba(50, 94, 214, 0.414);
+    background: rgba(0, 174, 254, 0.14);
     border-radius: 0.6rem;
     border: 1px solid rgba(96, 165, 250, 0.2);
     backdrop-filter: blur(10px);
@@ -143,14 +143,14 @@
 }
 
 .stock-name {
-    color: #e2e3e4;
+    color: #000000;
     font-size: 0.85rem;
 }
 
 .stock-price {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #ffffff;
+    color: #000000;
 }
 
 .stock-change {

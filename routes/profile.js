@@ -293,7 +293,7 @@ router.post('/delete', requireAuth, async (req, res) => {
     }
 });
 
-// Helper function to get user statistics - Fixed: Parameter name
+// Helper function to get user statistics - FIXED VERSION
 async function getUserStats(userId) {
     try {
         const trades = await Trade.find({ userId }).lean();
@@ -305,51 +305,52 @@ async function getUserStats(userId) {
         // Calculate watchlist count
         const watchlistCount = user.watchlist ? user.watchlist.length : 0;
 
-        // Calculate total profit/loss
+        // Calculate total profit/loss - FIXED: Use 'profitLoss' instead of 'profit'
         const totalProfit = trades.reduce((sum, trade) => {
-            return sum + (trade.profit || 0);
+            return sum + (trade.profitLoss || 0);
         }, 0);
 
-        // Calculate win rate
-        const profitableTrades = trades.filter(trade => (trade.profit || 0) > 0).length;
+        // Calculate win rate - FIXED: Use 'profitLoss' instead of 'profit'
+        const profitableTrades = trades.filter(trade => (trade.profitLoss || 0) > 0).length;
         const winRate = totalTrades > 0 ? Math.round((profitableTrades / totalTrades) * 100) : 0;
 
-        // Calculate monthly profit
+        // Calculate monthly profit - FIXED: Use 'profitLoss' and 'tradeDate'
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
         
-        const monthlyTrades = trades.filter(trade => new Date(trade.date) >= oneMonthAgo);
+        const monthlyTrades = trades.filter(trade => new Date(trade.tradeDate) >= oneMonthAgo);
         const monthlyProfit = monthlyTrades.reduce((sum, trade) => {
-            return sum + (trade.profit || 0);
+            return sum + (trade.profitLoss || 0);
         }, 0);
 
-        // Calculate weekly profit
+        // Calculate weekly profit - FIXED: Use 'profitLoss' and 'tradeDate'
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         
-        const weeklyTrades = trades.filter(trade => new Date(trade.date) >= oneWeekAgo);
+        const weeklyTrades = trades.filter(trade => new Date(trade.tradeDate) >= oneWeekAgo);
         const weeklyProfit = weeklyTrades.reduce((sum, trade) => {
-            return sum + (trade.profit || 0);
+            return sum + (trade.profitLoss || 0);
         }, 0);
 
-        // Calculate today's profit
+        // Calculate today's profit - FIXED: Use 'profitLoss' and 'tradeDate'
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
         const todayTrades = trades.filter(trade => {
-            const tradeDate = new Date(trade.date);
+            const tradeDate = new Date(trade.tradeDate);
             tradeDate.setHours(0, 0, 0, 0);
             return tradeDate.getTime() === today.getTime();
         });
         
         const todayProfit = todayTrades.reduce((sum, trade) => {
-            return sum + (trade.profit || 0);
+            return sum + (trade.profitLoss || 0);
         }, 0);
 
         return {
             totalTrades,
             watchlistCount,
             totalProfit: Math.round(totalProfit * 100) / 100,
+            totalProfitLoss: Math.round(totalProfit * 100) / 100, // Added this for profile.ejs
             monthlyProfit: Math.round(monthlyProfit * 100) / 100,
             weeklyProfit: Math.round(weeklyProfit * 100) / 100,
             todayProfit: Math.round(todayProfit * 100) / 100,
@@ -362,6 +363,7 @@ async function getUserStats(userId) {
             totalTrades: 0,
             watchlistCount: 0,
             totalProfit: 0,
+            totalProfitLoss: 0,
             monthlyProfit: 0,
             weeklyProfit: 0,
             todayProfit: 0,

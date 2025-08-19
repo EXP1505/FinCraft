@@ -2,17 +2,33 @@ const express = require('express');
 const router = express.Router();
 const Trade = require('../models/Trade');
 const { requireAuth } = require('../middleware/authMiddleware');
-const { calculateProfit } = require('../utils/analytics');
+const mongoose = require('mongoose');
 
-// GET /trades - Trade History Page
+// GET /trades - Trade History Page (Root route for /trades)
 router.get('/', requireAuth, async (req, res) => {
     try {
         const { stock, period, page = 1 } = req.query;
-        const limit = 20;
+        const limit = 50;
         const skip = (page - 1) * limit;
         
+        // Get user ID from session (matching your server.js pattern)
+        const userId = req.session.user._id || req.session.user.id;
+        
+        if (!userId) {
+            console.log('❌ No user ID found in session');
+            return res.redirect('/auth/login');
+        }
+
+        console.log('🔍 Trade History - User ID from session:', userId);
+        console.log('🔍 Session user object:', req.session.user);
+        
+        // Convert to ObjectId if needed
+        const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
+            ? new mongoose.Types.ObjectId(userId) 
+            : userId;
+            
         // Build query filter
-        let query = { userId: req.user._id };
+        let query = { userId: userObjectId };
         
         // Filter by stock symbol if provided
         if (stock && stock.trim()) {
@@ -42,70 +58,122 @@ router.get('/', requireAuth, async (req, res) => {
             }
             
             if (startDate) {
-                query.timestamp = { $gte: startDate };
+                // Use tradeDate field as per your schema
+                query.tradeDate = { $gte: startDate };
             }
         }
         
-        // Get trades with pagination
+        console.log('🔍 Query for trades:', JSON.stringify(query));
+        
+        // Get trades - sort by tradeDate (your schema field)
         const trades = await Trade.find(query)
-            .sort({ timestamp: -1 })
+            .sort({ tradeDate: -1, createdAt: -1 })
             .limit(limit)
-            .skip(skip);
+            .skip(skip)
+            .lean();
+        
+        console.log(`📊 Found ${trades.length} trades for user ${userId}`);
+        console.log('📊 Sample trade:', trades[0]);
+        
+        // Transform trades to match your EJS template expectations
+        const transformedTrades = trades.map(trade => ({
+            _id: trade._id,
+            symbol: trade.symbol,
+            companyName: trade.companyName || trade.symbol,
+            action: trade.type, // Map 'type' field to 'action' for EJS template
+            type: trade.type,
+            quantity: trade.quantity,
+            price: trade.price,
+            profitLoss: trade.profitLoss || 0,
+            timestamp: trade.tradeDate, // Map tradeDate to timestamp for EJS template
+            tradeDate: trade.tradeDate
+        }));
         
         // Get total count for pagination
         const totalTrades = await Trade.countDocuments(query);
         const totalPages = Math.ceil(totalTrades / limit);
         
-        // Calculate summary statistics
-        const allUserTrades = await Trade.find({ userId: req.user._id });
-        const totalProfit = allUserTrades.reduce((sum, trade) => sum + (trade.profitLoss || 0), 0);
-        const totalTrades_count = allUserTrades.length;
+        // Calculate summary statistics using all trades for this user
+        const allUserTrades = await Trade.find({ userId: userObjectId }).lean();
+        console.log(`📊 Total user trades for stats: ${allUserTrades.length}`);
+        
+        const totalPnL = allUserTrades.reduce((sum, trade) => {
+            const pnl = trade.profitLoss || 0;
+            return sum + pnl;
+        }, 0);
+        
+        const totalTradesCount = allUserTrades.length;
         const winningTrades = allUserTrades.filter(trade => (trade.profitLoss || 0) > 0).length;
-        const winRate = totalTrades_count > 0 ? ((winningTrades / totalTrades_count) * 100).toFixed(1) : 0;
+        const winRate = totalTradesCount > 0 ? ((winningTrades / totalTradesCount) * 100).toFixed(1) : 0;
+        
+        // Get unique stocks for filter dropdown
+        const uniqueStocks = [...new Set(allUserTrades.map(trade => trade.symbol))].sort();
+        
+        console.log('📊 Summary stats:', { totalPnL, totalTradesCount, winRate, uniqueStocks: uniqueStocks.length });
         
         res.render('history', {
-            user: req.user,
-            trades,
+            title: 'Trade History - Fincraft',
+            user: req.session.user,
+            trades: transformedTrades,
+            totalPnL: totalPnL,
+            winRate: winRate,
+            uniqueStocks: uniqueStocks,
             filters: { stock, period },
             pagination: {
                 currentPage: parseInt(page),
                 totalPages,
                 hasNext: page < totalPages,
                 hasPrev: page > 1
-            },
-            summary: {
-                totalProfit: totalProfit.toFixed(2),
-                totalTrades: totalTrades_count,
-                winRate
             }
         });
         
     } catch (error) {
-        console.error('Error fetching trade history:', error);
+        console.error('❌ Error fetching trade history:', error);
         res.status(500).render('error', { 
+            title: 'Error - Fincraft',
             message: 'Error loading trade history', 
-            user: req.user 
+            user: req.session.user,
+            error: process.env.NODE_ENV === 'development' ? error : {}
         });
     }
 });
 
-// POST /trades/simulate - Simulate a trade (Buy/Sell)
+// POST /trades/simulate - Create a new trade
 router.post('/simulate', requireAuth, async (req, res) => {
     try {
         const { symbol, action, quantity, price, companyName } = req.body;
         
-        // Validation code stays the same...
+        // Get user ID from session
+        const userId = req.session.user._id || req.session.user.id;
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
+        
+        // Validation
+        const qty = parseInt(quantity);
+        const tradePrice = parseFloat(price);
+        
+        if (!symbol || !action || isNaN(qty) || qty <= 0 || isNaN(tradePrice) || tradePrice <= 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid trade parameters' 
+            });
+        }
+        
+        const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
+            ? new mongoose.Types.ObjectId(userId) 
+            : userId;
         
         // For SELL orders, check if user has enough shares
         if (action.toUpperCase() === 'SELL') {
             const userTrades = await Trade.find({ 
-                userId: req.user._id, 
+                userId: userObjectId, 
                 symbol: symbol.toUpperCase() 
-            });
+            }).lean();
             
             let netShares = 0;
             userTrades.forEach(trade => {
-                // Use 'type' field instead of 'action'
                 if (trade.type === 'BUY') {
                     netShares += trade.quantity;
                 } else if (trade.type === 'SELL') {
@@ -125,12 +193,11 @@ router.post('/simulate', requireAuth, async (req, res) => {
         let profitLoss = 0;
         if (action.toUpperCase() === 'SELL') {
             const buyTrades = await Trade.find({ 
-                userId: req.user._id, 
+                userId: userObjectId, 
                 symbol: symbol.toUpperCase(),
-                type: 'BUY'  // Use 'type' instead of 'action'
-            }).sort({ tradeDate: 1 }); // Use 'tradeDate' instead of 'timestamp'
+                type: 'BUY'
+            }).sort({ tradeDate: 1 }).lean();
             
-            // Calculate profit/loss logic...
             let totalCost = 0;
             let totalShares = 0;
             
@@ -145,20 +212,30 @@ router.post('/simulate', requireAuth, async (req, res) => {
             }
         }
         
-        // Create new trade using your model's field names
-        const newTrade = new Trade({
-            userId: req.user._id,
+        // Create new trade matching your schema exactly
+        const tradeData = {
+            userId: userObjectId,
             symbol: symbol.toUpperCase(),
             companyName: companyName || symbol.toUpperCase(),
-            type: action.toUpperCase(), // Use 'type' instead of 'action'
+            type: action.toUpperCase(), // This matches your schema
             quantity: qty,
             price: tradePrice,
-            totalAmount: qty * tradePrice, // Add totalAmount field
+            totalAmount: qty * tradePrice, // This matches your schema
             profitLoss: profitLoss,
-            tradeDate: new Date() // Use 'tradeDate' instead of 'timestamp'
-        });
+            profitLossPercentage: tradePrice > 0 ? (profitLoss / (tradePrice * qty)) * 100 : 0,
+            tradeDate: new Date(), // This matches your schema
+            status: 'OPEN' // Default status from your schema
+        };
         
+        const newTrade = new Trade(tradeData);
         await newTrade.save();
+        
+        console.log('✅ New trade created:', {
+            id: newTrade._id,
+            symbol: newTrade.symbol,
+            type: newTrade.type,
+            userId: userId
+        });
         
         res.json({ 
             success: true, 
@@ -175,10 +252,10 @@ router.post('/simulate', requireAuth, async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Error simulating trade:', error);
+        console.error('❌ Error simulating trade:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Error processing trade' 
+            message: 'Error processing trade: ' + error.message
         });
     }
 });
@@ -186,58 +263,46 @@ router.post('/simulate', requireAuth, async (req, res) => {
 // GET /trades/portfolio - Get user's current portfolio
 router.get('/portfolio', requireAuth, async (req, res) => {
     try {
-        const trades = await Trade.find({ userId: req.user._id });
+        const userId = req.session.user._id || req.session.user.id;
         
-        // Calculate current holdings
-        const holdings = {};
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
         
-        trades.forEach(trade => {
-            if (!holdings[trade.symbol]) {
-                holdings[trade.symbol] = {
-                    symbol: trade.symbol,
-                    companyName: trade.companyName,
-                    quantity: 0,
-                    totalCost: 0,
-                    averagePrice: 0
-                };
-            }
+        const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
+            ? new mongoose.Types.ObjectId(userId) 
+            : userId;
             
-            if (trade.action === 'BUY') {
-                holdings[trade.symbol].quantity += trade.quantity;
-                holdings[trade.symbol].totalCost += (trade.price * trade.quantity);
-            } else if (trade.action === 'SELL') {
-                holdings[trade.symbol].quantity -= trade.quantity;
-                // Adjust total cost proportionally
-                const sellRatio = trade.quantity / (holdings[trade.symbol].quantity + trade.quantity);
-                holdings[trade.symbol].totalCost -= (holdings[trade.symbol].totalCost * sellRatio);
-            }
-        });
-        
-        // Calculate average prices and filter out zero holdings
-        const portfolio = Object.values(holdings)
-            .filter(holding => holding.quantity > 0)
-            .map(holding => ({
-                ...holding,
-                averagePrice: holding.quantity > 0 ? (holding.totalCost / holding.quantity).toFixed(2) : 0
-            }));
+        // Use the static method from your schema
+        const portfolio = await Trade.getUserPortfolio(userObjectId);
         
         res.json({ success: true, portfolio });
         
     } catch (error) {
-        console.error('Error fetching portfolio:', error);
+        console.error('❌ Error fetching portfolio:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Error loading portfolio' 
+            message: 'Error loading portfolio: ' + error.message
         });
     }
 });
 
-// DELETE /trades/:id - Delete a trade (for correction purposes)
+// DELETE /trades/:id - Delete a trade
 router.delete('/:id', requireAuth, async (req, res) => {
     try {
+        const userId = req.session.user._id || req.session.user.id;
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
+        
+        const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
+            ? new mongoose.Types.ObjectId(userId) 
+            : userId;
+        
         const trade = await Trade.findOne({ 
             _id: req.params.id, 
-            userId: req.user._id 
+            userId: userObjectId
         });
         
         if (!trade) {
@@ -249,16 +314,18 @@ router.delete('/:id', requireAuth, async (req, res) => {
         
         await Trade.findByIdAndDelete(req.params.id);
         
+        console.log('✅ Trade deleted:', req.params.id);
+        
         res.json({ 
             success: true, 
             message: 'Trade deleted successfully' 
         });
         
     } catch (error) {
-        console.error('Error deleting trade:', error);
+        console.error('❌ Error deleting trade:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Error deleting trade' 
+            message: 'Error deleting trade: ' + error.message
         });
     }
 });
@@ -267,6 +334,15 @@ router.delete('/:id', requireAuth, async (req, res) => {
 router.get('/stats', requireAuth, async (req, res) => {
     try {
         const { period = 'all' } = req.query;
+        const userId = req.session.user._id || req.session.user.id;
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
+        
+        const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
+            ? new mongoose.Types.ObjectId(userId) 
+            : userId;
         
         // Build date filter
         let dateFilter = {};
@@ -290,14 +366,14 @@ router.get('/stats', requireAuth, async (req, res) => {
             }
             
             if (startDate) {
-                dateFilter.timestamp = { $gte: startDate };
+                dateFilter.tradeDate = { $gte: startDate }; // Use tradeDate from your schema
             }
         }
         
         const trades = await Trade.find({ 
-            userId: req.user._id, 
+            userId: userObjectId, 
             ...dateFilter 
-        });
+        }).lean();
         
         // Calculate statistics
         const totalTrades = trades.length;
@@ -319,10 +395,10 @@ router.get('/stats', requireAuth, async (req, res) => {
         res.json({ success: true, stats });
         
     } catch (error) {
-        console.error('Error fetching trading stats:', error);
+        console.error('❌ Error fetching trading stats:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Error loading statistics' 
+            message: 'Error loading statistics: ' + error.message
         });
     }
 });

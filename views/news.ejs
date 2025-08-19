@@ -14,29 +14,23 @@
     <!-- Navigation (include your existing nav here) -->
     
     <!-- News Header -->
-    <div class="news-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="mb-2">
-                        <i class="fas fa-newspaper me-3"></i>
-                        <%= title %>
-                    </h1>
-                    <% if (locals.symbol) { %>
-                        <div class="stock-symbol-badge">
-                            <i class="fas fa-chart-line me-2"></i><%= symbol %>
-                        </div>
-                    <% } %>
-                    <p class="mb-0">Stay updated with the latest market news and insights</p>
-                </div>
-                <div class="col-md-4 text-md-end">
-                    <i class="fas fa-clock me-2"></i>
-                    <span id="last-updated">Last updated: <%= new Date().toLocaleString() %></span>
-                </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-newspaper me-3"></i>
+            <%= title %>
+        </h1>
+        <% if (locals.symbol) { %>
+            <div class="stock-symbol-badge">
+                <i class="fas fa-chart-line me-2"></i><%= symbol %>
             </div>
+        <% } %>
+        <p>Stay updated with the latest market news and insights</p>
+        <div class="time">
+            <i class="fas fa-clock me-2"></i>
+            <span id="last-updated">Last updated: <%= new Date().toLocaleString() %></span>
         </div>
     </div>
-
     <div class="container">
         <!-- Error Message -->
         <% if (locals.error) { %>

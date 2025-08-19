@@ -10,8 +10,6 @@ const newsRoutes = require('./routes/news');
 const profileRoutes = require('./routes/profile');
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 
-// const express = require('express');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -83,6 +81,10 @@ app.use('/brokers', authMiddleware.requireAuth, brokersRoutes);
 app.use('/search', authMiddleware.requireAuth, searchRoutes);
 app.use('/news', newsRoutes);
 app.use('/profile', profileRoutes);
+app.get('/history', authMiddleware.requireAuth, (req, res) => {
+  // Redirect to trades route which handles the history page
+  res.redirect('/trades');
+});
 
 // Home route - redirect to dashboard if logged in, otherwise show landing page
 app.get('/', (req, res) => {
@@ -102,33 +104,6 @@ app.get('/test-session', (req, res) => {
 
 app.get('/stock/:symbol', (req, res) => {
   res.redirect(`/stocks/${req.params.symbol}`);
-});
-const Trade = require('./models/Trade');
-
-app.get('/history', authMiddleware.requireAuth, async (req, res) => {
-  try {
-    if (!req.session.user) {
-      return res.redirect('/login');
-    }
-    const trades = await Trade.find({ userId: req.session.user._id }).sort({ timestamp: -1 });
-     // Calculate totalPnL and winRate for summary
-    const totalPnL = trades.reduce((sum, t) => sum + (t.profitLoss || 0), 0);
-    const winRate = trades.length > 0
-      ? ((trades.filter(t => (t.profitLoss || 0) > 0).length / trades.length) * 100).toFixed(1)
-      : 0;
-    // Get unique stocks for filter dropdown
-    const uniqueStocks = [...new Set(trades.map(t => t.symbol))];
-
-    res.render('history', {
-      title: 'Trade History',
-      trades,
-      totalPnL,
-      winRate,
-      uniqueStocks
-    });
-  } catch (error) {
-    res.status(500).render('error', { message: 'Error loading trade history' });
-  }
 });
 // Error handling middleware
 app.use((err, req, res, next) => {
