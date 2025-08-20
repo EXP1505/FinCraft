@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: fincraft-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGODB_URI
+        fromEnv: MONGODB_URI
+      - key: SESSION_SECRET
+        fromEnv: SESSION_SECRET
+      - key: FINNHUB_API_KEY
+        fromEnv: FINNHUB_API_KEY
+      - key: WEBHOOK_URL
+        fromEnv: WEBHOOK_URL
+      - key: NODE_ENV
+        fromEnv: NODE_ENV
+      - key: PORT
+        fromEnv: PORT
