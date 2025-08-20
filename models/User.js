@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   phone:{
     type: String,
-    required: true,
+    required: false,  // Changed from true to false
     minlength: 10,
   },
   bio:{

@@ -18,7 +18,7 @@ const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const stocksRoutes = require('./routes/stocks');
 const tradesRoutes = require('./routes/trades');
-const brokersRoutes = require('./routes/brokers');
+// const brokersRoutes = require('./routes/brokers');
 const searchRoutes = require('./routes/search'); 
 
 // Import middleware
@@ -77,7 +77,7 @@ app.use('/auth', authRoutes);
 app.use('/dashboard', authMiddleware.requireAuth, dashboardRoutes);
 app.use('/stocks', authMiddleware.requireAuth, stocksRoutes);
 app.use('/trades', authMiddleware.requireAuth, tradesRoutes);
-app.use('/brokers', authMiddleware.requireAuth, brokersRoutes);
+// app.use('/brokers', authMiddleware.requireAuth, brokersRoutes);
 app.use('/search', authMiddleware.requireAuth, searchRoutes);
 app.use('/news', newsRoutes);
 app.use('/profile', profileRoutes);
