@@ -31,8 +31,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => console.log('✅ Connected to MongoDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
-console.log('MongoDB URI:', process.env.MONGODB_URI);
-console.log('Finnhub Key:', process.env.FINNHUB_API_KEY ? 'Loaded ✅' : 'Missing ❌');
 // Set view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -64,11 +62,6 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-    console.log('🔍 Session Debug:', {
-        sessionID: req.sessionID,
-        hasUser: !!req.session.user,
-        userID: req.session.user ? (req.session.user._id || req.session.user.id) : null,
-    });
     next();
 });
 
