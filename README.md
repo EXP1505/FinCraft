@@ -41,7 +41,7 @@ Get a quick overview of your financial performance:
 
 ### Brokers Page (`/brokers`)
 
-  * **Financial Advisors:** Browse a list of simulated financial advisors with basic information. This list can be static or dynamically stored in MongoDB.
+  * **Financial Advisors:** Browse a list of simulated financial advisors with basic information. This list can be static or dynamically stored in MongoDB. (dont have anyone right now so sitting this one out)
 
 ### Market News page (`/news`)
 
