@@ -15,13 +15,8 @@ router.get('/', requireAuth, async (req, res) => {
         const userId = req.session.user._id || req.session.user.id;
         
         if (!userId) {
-            console.log('❌ No user ID found in session');
             return res.redirect('/auth/login');
         }
-
-        console.log('🔍 Trade History - User ID from session:', userId);
-        console.log('🔍 Session user object:', req.session.user);
-        
         // Convert to ObjectId if needed
         const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
             ? new mongoose.Types.ObjectId(userId) 
@@ -62,18 +57,12 @@ router.get('/', requireAuth, async (req, res) => {
                 query.tradeDate = { $gte: startDate };
             }
         }
-        
-        console.log('🔍 Query for trades:', JSON.stringify(query));
-        
         // Get trades - sort by tradeDate (your schema field)
         const trades = await Trade.find(query)
             .sort({ tradeDate: -1, createdAt: -1 })
             .limit(limit)
             .skip(skip)
             .lean();
-        
-        console.log(`📊 Found ${trades.length} trades for user ${userId}`);
-        console.log('📊 Sample trade:', trades[0]);
         
         // Transform trades to match your EJS template expectations
         const transformedTrades = trades.map(trade => ({
@@ -95,8 +84,7 @@ router.get('/', requireAuth, async (req, res) => {
         
         // Calculate summary statistics using all trades for this user
         const allUserTrades = await Trade.find({ userId: userObjectId }).lean();
-        console.log(`📊 Total user trades for stats: ${allUserTrades.length}`);
-        
+
         const totalPnL = allUserTrades.reduce((sum, trade) => {
             const pnl = trade.profitLoss || 0;
             return sum + pnl;
@@ -108,9 +96,6 @@ router.get('/', requireAuth, async (req, res) => {
         
         // Get unique stocks for filter dropdown
         const uniqueStocks = [...new Set(allUserTrades.map(trade => trade.symbol))].sort();
-        
-        console.log('📊 Summary stats:', { totalPnL, totalTradesCount, winRate, uniqueStocks: uniqueStocks.length });
-        
         res.render('history', {
             title: 'Trade History - Fincraft',
             user: req.session.user,
@@ -230,13 +215,6 @@ router.post('/simulate', requireAuth, async (req, res) => {
         const newTrade = new Trade(tradeData);
         await newTrade.save();
         
-        console.log('✅ New trade created:', {
-            id: newTrade._id,
-            symbol: newTrade.symbol,
-            type: newTrade.type,
-            userId: userId
-        });
-        
         res.json({ 
             success: true, 
             message: `${action.toUpperCase()} order executed successfully`,
@@ -313,9 +291,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
         }
         
         await Trade.findByIdAndDelete(req.params.id);
-        
-        console.log('✅ Trade deleted:', req.params.id);
-        
+                
         res.json({ 
             success: true, 
             message: 'Trade deleted successfully' 

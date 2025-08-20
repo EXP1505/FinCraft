@@ -247,23 +247,18 @@ let autoScrollInterval;
 
 // Make news data available globally
 <% if (typeof news !== 'undefined' && news.length > 0) { %>
-    console.log('News data received from backend:', <%- JSON.stringify(news.length) %>);
     var newsFromBackend = <%- JSON.stringify(news.slice(0, 10)) %>;
 <% } else { %>
-    console.log('No news data received from backend');
     var newsFromBackend = [];
 <% } %>
 
 // Initialize news with real data from backend
 function initializeNews() {
-    console.log('Initializing news with backend data:', newsFromBackend);
     
     // Use news data passed from backend or fetch from API
     if (typeof newsFromBackend !== 'undefined' && newsFromBackend.length > 0) {
         newsData = newsFromBackend.slice(0, 10); // Limit to top 10 news
-        console.log('Using backend news data:', newsData.length, 'articles');
     } else {
-        console.log('No backend news data, fetching from API...');
         // Fallback: fetch news via API if not provided by backend
         fetchNewsFromAPI();
         return; // Exit early since fetchNewsFromAPI will handle the rest
@@ -277,27 +272,21 @@ function initializeNews() {
 // Fetch news from API (fallback method)
 async function fetchNewsFromAPI() {
     try {
-        console.log('Fetching news from API...');
         const response = await fetch('/api/news/general?limit=10');
         const data = await response.json();
-        
-        console.log('API response:', data);
-        
+                
         if (data && data.success && data.data && data.data.length > 0) {
             newsData = data.data;
-            console.log('Successfully fetched', newsData.length, 'articles from API');
             updateNewsDisplay();
             updateCounter();
             startAutoScroll();
         } else if (data && Array.isArray(data) && data.length > 0) {
             // Handle direct array response
             newsData = data;
-            console.log('Successfully fetched', newsData.length, 'articles from API (direct array)');
             updateNewsDisplay();
             updateCounter();
             startAutoScroll();
         } else {
-            console.log('No news data in API response');
             showNoNewsMessage();
         }
     } catch (error) {
@@ -316,9 +305,6 @@ function updateNewsDisplay() {
     }
     
     const currentNews = newsData[currentNewsIndex];
-    
-    console.log('Updating news display. Current index:', currentNewsIndex, 'News item:', currentNews);
-    
     if (currentNews) {
         const imageHtml = currentNews.image ? 
             `<div class="news-image-container">
@@ -361,7 +347,6 @@ function updateNewsDisplay() {
             </div>
         `;
     } else {
-        console.log('No current news item to display');
         showNoNewsMessage();
     }
 }
@@ -418,7 +403,6 @@ function updateCounter() {
     if (currentNewsEl && totalNewsEl) {
         currentNewsEl.textContent = newsData.length > 0 ? currentNewsIndex + 1 : 0;
         totalNewsEl.textContent = newsData.length;
-        console.log('Updated counter:', (currentNewsIndex + 1), '/', newsData.length);
     }
 }
 
@@ -479,7 +463,6 @@ function stopAutoScroll() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing news...');
     
     // Add event listeners for navigation buttons
     const nextBtn = document.getElementById('next-news');

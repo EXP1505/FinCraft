@@ -32,7 +32,6 @@ class StockChart {
                 this.renderChart(data);
             } else {
                 // Fallback to mock data
-                console.log('Using mock data for chart...');
                 const mockData = this.generateMockData(symbol, timeframe);
                 this.renderChart(mockData);
             }
@@ -200,7 +199,6 @@ class StockChart {
             }
         });
 
-        console.log(`Chart rendered for ${this.symbol} - ${this.timeframe}`);
     }
 
     changeTimeframe(newTimeframe) {

@@ -524,7 +524,6 @@ async function executeTrade(tradeData, form) {
             notes: tradeData.notes || ''
         };
 
-        console.log('Executing trade:', fixedTradeData);
 
         // FIXED: Use the correct endpoint
         const response = await fetch(`/stocks/${stockSymbol}/trade`, {
@@ -536,7 +535,6 @@ async function executeTrade(tradeData, form) {
         });
 
         const result = await response.json();
-        console.log('Trade response:', result);
 
         if (result.success) {
             showAlert(result.message || 'Trade executed successfully!', 'success');

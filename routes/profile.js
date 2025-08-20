@@ -34,10 +34,6 @@ router.post('/upload-image', requireAuth, upload.single('profileImage'), async (
 
 // GET profile page
 router.get('/', requireAuth, async (req, res) => {
-    console.log('Rendering profile with:', {
-        userId: req.session.user.id, // Fixed logging
-        user: req.user
-    });
     try {
         // Since requireAuth middleware already fetches the user, we can use req.user
         const user = req.user || await User.findById(req.session.user.id||req.session.user._id);
@@ -57,9 +53,6 @@ router.get('/', requireAuth, async (req, res) => {
             .sort({ tradeDate: -1 })
             .limit(10)
             .lean();
-
-        console.log(`Found ${recentTrades.length} recent trades for user ${userId}`);
-        
         // Debug: Log the structure of the first trade to understand the data format
         if (recentTrades.length > 0) {
             console.log('Sample trade structure:', JSON.stringify(recentTrades[0], null, 2));
@@ -84,14 +77,10 @@ router.get('/', requireAuth, async (req, res) => {
 // POST update profile - FIXED VERSION
 router.post('/update', requireAuth, async (req, res) => {
     try {
-        console.log('Update request body:', req.body);
-        console.log('User ID from session:', req.session.user.id);
-        
         const { name, email, phone, experienceLevel, bio } = req.body;
         
         // Validate required fields
         if (!name || !email) {
-            console.log('Validation failed: missing name or email');
             return res.status(400).json({
                 success: false,
                 message: 'Name and email are required'
@@ -141,8 +130,6 @@ router.post('/update', requireAuth, async (req, res) => {
             updatedAt: new Date()
         };
 
-        console.log('Updating user with data:', updateData);
-
         // Update user profile - Fixed: Use req.session.user.id
         const updatedUser = await User.findByIdAndUpdate(
             req.session.user.id,
@@ -156,8 +143,6 @@ router.post('/update', requireAuth, async (req, res) => {
                 message: 'User not found'
             });
         }
-
-        console.log('User updated successfully:', updatedUser._id);
 
         // Update session data with new information
         req.session.user.email = updatedUser.email;

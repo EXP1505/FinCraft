@@ -16,7 +16,6 @@ const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 // Helper function to make Finnhub API calls
 const finnhubRequest = async (endpoint, params = {}) => {
   try {
-    console.log('Making Finnhub request to:', endpoint);
     const response = await axios.get(`${FINNHUB_BASE_URL}${endpoint}`, {
       params: {
         ...params,
@@ -215,7 +214,6 @@ router.get('/:symbol', async (req, res) => {
     const symbol = req.params.symbol.toUpperCase();
     const userId = req.session.user._id || req.session.user.id;
 
-    console.log(`Fetching data for symbol: ${symbol}`);
 
     // Get stock data with better error handling
     const [quote, profile, recommendation] = await Promise.allSettled([
@@ -381,7 +379,6 @@ router.post('/:symbol/trade', async (req, res) => {
     const userId = req.session.user._id || req.session.user.id;
     const { type, quantity, notes } = req.body;
 
-    console.log('Trade request:', { symbol, userId, type, quantity });
 
     // Validate input
     if (!type || !quantity || quantity <= 0) {
@@ -498,7 +495,6 @@ router.post('/:symbol/trade', async (req, res) => {
     const trade = new Trade(tradeData);
     await trade.save();
 
-    console.log('Trade saved successfully:', trade._id);
 
     res.json({
       success: true,

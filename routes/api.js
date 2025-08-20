@@ -342,9 +342,6 @@ router.get('/news/:symbol', async (req, res) => {
 
 // Add stock to watchlist
 router.post('/watchlist/:symbol', async (req, res) => {
-  console.log('📥 Add to watchlist request:', req.body);
-  console.log('👤 Session user:', req.session.user);
-  
   try {
     if (!req.session.user) {
       return res.status(401).json({
@@ -388,7 +385,6 @@ router.post('/watchlist/:symbol', async (req, res) => {
     });
 
     await user.save();
-    console.log('✅ Added to watchlist:', symbol);
 
     res.json({
       success: true,
@@ -406,8 +402,6 @@ router.post('/watchlist/:symbol', async (req, res) => {
 
 // Remove stock from watchlist
 router.delete('/watchlist/:symbol', async (req, res) => {
-  console.log('📥 Remove from watchlist request:', req.body);
-  console.log('👤 Session user:', req.session.user);
   
   try {
     if (!req.session.user) {
@@ -446,7 +440,6 @@ router.delete('/watchlist/:symbol', async (req, res) => {
     }
 
     await user.save();
-    console.log('✅ Removed from watchlist:', symbol);
 
     res.json({
       success: true,

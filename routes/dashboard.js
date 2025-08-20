@@ -44,8 +44,6 @@ router.get('/', async (req, res) => {
         .sort({ tradeDate: -1 })
         .limit(10)
         .lean();
-      
-      console.log(`Found ${recentTrades.length} recent trades for user ${userId}`);
     } catch (tradeError) {
       console.error('Error fetching recent trades:', tradeError);
     }
@@ -53,25 +51,20 @@ router.get('/', async (req, res) => {
     // Fetch news data for dashboard
     let newsData = [];
     try {
-      console.log('Attempting to fetch news data...');
       
       // Option 1: Try using your existing news API endpoint
       const newsApiUrl = `${req.protocol}://${req.get('host')}/api/news?category=general&limit=10`;
-      console.log('Fetching from:', newsApiUrl);
       
       const newsResponse = await fetch(newsApiUrl);
       const newsResult = await newsResponse.json();
       
       if (newsResult.success && newsResult.data) {
         newsData = newsResult.data.slice(0, 10);
-        console.log(`Successfully fetched ${newsData.length} news articles from API`);
       } else {
-        console.log('API response unsuccessful, trying direct Finnhub...');
         throw new Error('API response not successful');
       }
       
     } catch (apiError) {
-      console.log('API fetch failed, trying direct Finnhub access...');
       
       // Option 2: Direct Finnhub API call as fallback
       try {
@@ -82,8 +75,6 @@ router.get('/', async (req, res) => {
           console.error('FINNHUB_API_KEY not found in environment variables');
           throw new Error('Missing API key');
         }
-        
-        console.log('Making direct Finnhub API call...');
         const directResponse = await axios.get('https://finnhub.io/api/v1/news', {
           params: {
             category: 'general',
@@ -94,7 +85,6 @@ router.get('/', async (req, res) => {
         
         if (directResponse.data && Array.isArray(directResponse.data)) {
           newsData = directResponse.data.slice(0, 10);
-          console.log(`Successfully fetched ${newsData.length} news articles from direct Finnhub`);
         }
         
       } catch (directError) {
@@ -105,7 +95,6 @@ router.get('/', async (req, res) => {
 
     // If still no news, create some mock data for testing
     if (newsData.length === 0) {
-      console.log('No news data available, using fallback mock data');
       newsData = [
         {
           headline: "Market Update: Stocks Show Mixed Performance",
@@ -230,8 +219,6 @@ router.get('/', async (req, res) => {
     } catch (analyticsError) {
       console.error('Analytics error:', analyticsError);
     }
-
-    console.log(`Rendering dashboard with ${newsData.length} news articles`);
 
     res.render('dashboard', {
       title: 'Dashboard - Fincraft',
