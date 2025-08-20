@@ -79,10 +79,6 @@ Get a quick overview of your financial performance:
     SESSION_SECRET=a_strong_secret_key_for_sessions
     ```
 
-      * Replace `your_mongodb_connection_string` with your MongoDB URI (e.g., `mongodb://localhost:27017/Fincraft`).
-      * Replace `your_finnhub_api_key` with your actual API key from Finnhub.
-      * Replace `a_strong_secret_key_for_sessions` with a long, random string for session encryption.
-
 4.  **Run the application:**
 
     ```bash
@@ -115,9 +111,7 @@ Fincraft utilizes the Finnhub API for real-time stock prices, historical data, a
   * **Website:** [https://finnhub.io](https://finnhub.io)
   * **Free Tier:** 60 requests/minute
   * **Features:** Real-time quotes, candlestick data, recommendations.
-  * **Example Endpoints:**
-      * `GET /quote?symbol=AAPL&token=YOUR_API_KEY`
-      * `GET /stock/candle?symbol=AAPL&resolution=1&from=TIMESTAMP&to=TIMESTAMP&token=YOUR_API_KEY`
+
 
 ## 🤝 Contributing
 
